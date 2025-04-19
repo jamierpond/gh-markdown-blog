@@ -22,11 +22,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const { repo, file } = await parseParams(params);
-  const data = await getPageData(file, repo);
+  if (!file) {
+    return {
+      title: `${repo} - Blog`,
+      description: "Blogify your GitHub Repo",
+    };
+  }
 
+  const content = await getFileContent(file, repo);
+  const first160Chars = content.slice(0, 160);
+  console.log("First 160 chars:", first160Chars);
   return {
     title: `${repo} - ${file || "Blog"}`,
-    description: `${repo} - ${file || "Blog"}`,
+    description: `${first160Chars}...`,
   };
 }
 
