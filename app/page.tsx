@@ -1,9 +1,9 @@
 import FileBrowser from "@/app/Components/FileBrowser";
-import { REPO, BRANCH } from "@/app/shared";
+import { REPO } from "@/app/shared";
 
 export default async function Page() {
-  if (!REPO || !BRANCH) {
+  if (!REPO) {
     throw new Error("Repository or branch not specified");
   }
-  return <FileBrowser repo={REPO} branch={BRANCH} />; // Pass the repo and branch to FileBrowser
+  return <FileBrowser repo={REPO} />; // Pass the repo and branch to FileBrowser
 }
