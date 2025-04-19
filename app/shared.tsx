@@ -1,5 +1,5 @@
-export const REPO = process.env.NEXT_PUBLIC_GITHUB_REPO;
-export const BRANCH = process.env.NEXT_PUBLIC_GITHUB_BRANCH;
+export const DEFAULT_REPO = process.env.NEXT_PUBLIC_GITHUB_REPO;
+export const DEFAULT_BRANCH = process.env.NEXT_PUBLIC_GITHUB_BRANCH;
 export const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 import { AlertIcon } from "@/app/icons/svg";
 import Link from "next/link";
