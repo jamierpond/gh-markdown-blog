@@ -18,9 +18,9 @@ export default async function Page({ params }: PageProps) {
     if (!REPO || !BRANCH) {
       throw new Error("Repository or branch not specified");
     }
-    const data = await getPageData(file, REPO, BRANCH);
+    const data = await getPageData(file, REPO);
     console.log("Data fetched:", data);
-    return <MarkdownView data={data} repo={REPO} branch={BRANCH} />; // Pass the repo and branch to MarkdownView
+    return <MarkdownView data={data} repo={REPO} />; // Pass the repo and branch to MarkdownView
   } catch (error) {
     console.error("Failed to load", error);
     return <ArticleNotFound />;

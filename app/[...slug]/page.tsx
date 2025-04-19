@@ -1,15 +1,15 @@
 import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { ArticleNotFound, getPageData, getDefaultBranch } from "@/app/shared";
+import { ArticleNotFound, getPageData } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 
 export default async function Page({ params }: PageProps) {
   if (!params) {
     return <div>Invalid parameters</div>;
   }
+
   const p = await params;
   const slug = p.slug as string[];
-
   const repo = `${slug[0]}/${slug[1]}`;
 
   if (!slug) {
@@ -24,14 +24,11 @@ export default async function Page({ params }: PageProps) {
 
   slug.splice(0, LEN_DEFAULT);
   const file = slug.join("/");
-  console.warn("File:", file);
 
   try {
     const data = await getPageData(file, repo);
-    console.log("Data fetched:", data);
     return <MarkdownView data={data} repo={repo} />; // Pass the repo and branch to MarkdownView
   } catch (error) {
-    console.error("Failed to load", error);
     return <ArticleNotFound />;
   }
 }
