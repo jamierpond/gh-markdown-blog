@@ -31,8 +31,10 @@ export async function getPageData(file: string, repo: string) {
   const branch = await getDefaultBranch(repo);
   const url = `https://api.github.com/repos/${repo}/contents/${file}?ref=${branch}`;
   console.log("Fetching from URL:", url);
-  return await getFromGithub(url, TEN_MINUTES_SECONDS);
+  const data = await getFromGithub(url, TEN_MINUTES_SECONDS);
+  return data;
 }
+
 
 export async function getFileContent(file: string, repo: string) {
   const data = await getPageData(file, repo);

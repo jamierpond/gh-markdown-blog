@@ -1,6 +1,6 @@
 import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { ArticleNotFound, getFileContent } from "@/app/shared";
+import { ArticleNotFound, getFileContent, getFromGithub } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
 
@@ -36,7 +36,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const content = await getFileContent(file, repo);
   const first160Chars = content.slice(0, 160);
-  console.log("First 160 chars:", first160Chars);
   return {
     title: `${repo} - ${file || "Blog"}`,
     description: `${first160Chars}...`,
@@ -60,17 +59,19 @@ export default async function Page({ params }: PageProps) {
   }
   const { repo, file } = await parseParams(params);
 
-  console.log("Parsed params:", repo, file);
   if (!file) {
-    console.log("Going to file browser");
     return <FileBrowser repo={repo} />; // Pass the repo and branch to FileBrowser
   }
 
-  console.log("Going to file", file);
-
   try {
     const content = await getFileContent(file, repo);
-    return <MarkdownView content={content} repo={repo} path={file} />; // Pass the repo and branch to MarkdownView
+    const commits = await getFromGithub(`https://api.github.com/repos/${repo}/commits?path=${file}&per_page=1`);
+    if (!commits || commits.length === 0) {
+      throw new Error("No commits found for this file");
+    }
+    const lastCommit = commits[0];
+    const lastUpdated = lastCommit.commit.author.date;
+    return <MarkdownView content={content} repo={repo} path={file} lastUpdated={lastUpdated} />; // Pass the repo and branch to MarkdownView
   } catch (error) {
     console.error("Failed to load", error);
     return <ArticleNotFound />;
