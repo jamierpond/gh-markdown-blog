@@ -4,7 +4,11 @@ import { ArticleNotFound, getFileContent } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
 
-async function parseParams(params: Promise<any>) {
+interface Params {
+  slug: string[];
+}
+
+async function parseParams(params: Promise<Params>) {
   const p = await params;
   const slug = p.slug as string[];
   const repo = `${slug[0]}/${slug[1]}`;
