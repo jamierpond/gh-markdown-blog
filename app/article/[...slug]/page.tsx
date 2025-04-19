@@ -1,14 +1,16 @@
 // curl -s -H "Accept: application/vnd.github.v3+json" \
 //   https://api.github.com/repos/vercel/next.js/contents/packages/next/README.md
 
-import { REPO, BRANCH } from "@/app/shared";
+import { REPO, BRANCH, GITHUB_TOKEN } from "@/app/shared";
 
 async function getData(file: string) {
+  console.log("Fetching data for file:", file);
   const res = await fetch(
     `https://api.github.com/repos/${REPO}/contents/${file}?ref=${BRANCH}`,
     {
       headers: {
         Accept: "application/vnd.github.v3+json",
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
       },
     }
   );
@@ -35,13 +37,15 @@ function View ({ data }: { data: any }) {
   );
 }
 
-export default async function Page({ params }: { params: { file: string } }) {
-  const file = params.file;
+export default async function Page({ params }: { params: { slug: string[] } }) {
+  console.log("Page params:", params);
+  const file = params.slug.join("/");
   try {
     const data = await getData(file);
     return <View data={data} />;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return <div>Failed to load, {message}</div>;
+    console.error("Failed to load", error);
+    // todo make this return a page or redirect
+    throw new Error("Failed to load");
   }
 }

@@ -1,17 +1,23 @@
-import { REPO, BRANCH } from "@/app/shared";
+import { REPO, BRANCH, GITHUB_TOKEN } from "@/app/shared";
 
 export default async function Home() {
   const files = await fetch(`https://api.github.com/repos/${REPO}/git/trees/${BRANCH}?recursive=1`,
     {
       headers: {
         Accept: "application/vnd.github.v3+json",
+        Authorization: `Bearer: ${GITHUB_TOKEN}`,
       },
     }
   ).then((res) => res.json());
 
   const tree = files.tree;
   if (!tree) {
-    return <div>Failed to tree!</div>;
+    return (
+      <>
+        <div>Failed to tree!</div>
+        <div>Got: {JSON.stringify(files)}</div>
+      </>
+    );
   }
 
   const markdownFiles = files.tree.filter(
