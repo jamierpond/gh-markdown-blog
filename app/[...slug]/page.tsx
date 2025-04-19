@@ -1,6 +1,6 @@
 import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { ArticleNotFound, getFileContent, getPageData } from "@/app/shared";
+import { ArticleNotFound, getFileContent } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
 
@@ -54,7 +54,7 @@ export default async function Page({ params }: PageProps) {
 
   try {
     const content = await getFileContent(file, repo);
-    return <MarkdownView content={content} repo={repo} />; // Pass the repo and branch to MarkdownView
+    return <MarkdownView content={content} repo={repo} path={file} />; // Pass the repo and branch to MarkdownView
   } catch (error) {
     console.error("Failed to load", error);
     return <ArticleNotFound />;
