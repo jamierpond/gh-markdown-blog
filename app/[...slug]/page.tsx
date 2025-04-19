@@ -5,6 +5,7 @@ import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
 
 interface Params {
+  // tied to name of the folder in the file system
   slug: string[];
 }
 
@@ -39,6 +40,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${repo} - ${file || "Blog"}`,
     description: `${first160Chars}...`,
+    openGraph: {
+      title: `${repo} - ${file || "Blog"}`,
+      description: `${first160Chars}...`,
+      images: ["https://pond.audio/pup.jpg"],
+    },
+    twitter: {
+      title: `${repo} - ${file || "Blog"}`,
+      description: `${first160Chars}...`,
+      card: "summary",
+      images: ["https://pond.audio/pup.jpg"],
+    },
   };
 }
 
