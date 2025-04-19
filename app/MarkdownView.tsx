@@ -1,5 +1,8 @@
 import Markdown from "react-markdown";
 import { REPO, BRANCH } from "@/app/shared";
+import remarkGfm from "remark-gfm";
+import remarkFootnotes from "remark-footnotes";
+import rehypeHighlight from "rehype-highlight";
 
 export function View({ data }: { data: any }) {
   const { content, encoding } = data;
@@ -22,6 +25,8 @@ export function View({ data }: { data: any }) {
 
       <article className="w-full bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800 p-8">
         <Markdown
+          remarkPlugins={[remarkGfm, [remarkFootnotes, { inlineNotes: true }]]}
+          rehypePlugins={[rehypeHighlight]}
           components={{
             // Headings with proper spacing and hierarchy
             h1: ({ children }) => (
@@ -52,17 +57,26 @@ export function View({ data }: { data: any }) {
               </p>
             ),
 
-            // Links with nice hover effects
-            a: ({ href, children }) => (
-              <a
-                href={href}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-blue-400/30 decoration-1 underline-offset-2 hover:decoration-2 transition-all"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {children}
-              </a>
-            ),
+            // Links with nice hover effects and proper handling of citation links
+            a: ({ href, children }) => {
+              // Check if this is a citation/footnote link (starts with #)
+              const isCitationLink = href?.startsWith('#');
+              
+              // Different styling for citation links vs external links
+              const linkClassName = isCitationLink
+                ? "text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 underline decoration-purple-400/30 decoration-1 underline-offset-2 hover:decoration-2 transition-all"
+                : "text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-blue-400/30 decoration-1 underline-offset-2 hover:decoration-2 transition-all";
+              
+              return (
+                <a
+                  href={href}
+                  className={linkClassName}
+                  {...(!isCitationLink ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                >
+                  {children}
+                </a>
+              );
+            },
 
             // Inline code and code blocks
             code: ({ className, children }) => {
