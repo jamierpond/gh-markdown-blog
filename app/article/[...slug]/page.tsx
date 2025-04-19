@@ -1,6 +1,3 @@
-// curl -s -H "Accept: application/vnd.github.v3+json" \
-//   https://api.github.com/repos/vercel/next.js/contents/packages/next/README.md
-
 import { PageProps } from "@/.next/types/app/layout";
 import { REPO, BRANCH, GITHUB_TOKEN } from "@/app/shared";
 import Link from "next/link";
