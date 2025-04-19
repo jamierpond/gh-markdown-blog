@@ -28,10 +28,11 @@ async function getData(file: string) {
 function View({ data }: { data: any }) {
   const { content, encoding } = data;
   const decodedContent = Buffer.from(content, encoding).toString("utf-8");
+
   return (
     <div className="flex flex-col gap-[16px]">
       <h2 className="text-[24px] font-bold">{data.path}</h2>
-      <div className="text-[16px] text-gray-700">
+      <div className="prose max-w-none">
         <Markdown>{decodedContent}</Markdown>
       </div>
     </div>
