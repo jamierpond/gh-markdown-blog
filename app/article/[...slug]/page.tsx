@@ -25,7 +25,6 @@ function ArticleNotFound() {
   );
 }
 
-
 export default async function Page({ params }: PageProps) {
   if (!params) {
     return <div>Invalid parameters</div>;
