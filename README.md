@@ -1,4 +1,6 @@
 # gh-markdown-blog
+# TODO !!
+!!USETHE GRAPHQL API INSTEAD OF THE REST API !!!!
 
 A modern, elegant Markdown viewer for GitHub repositories, built with Next.js 15, React 19, and TailwindCSS.
 
