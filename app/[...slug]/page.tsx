@@ -1,6 +1,6 @@
 import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { ArticleNotFound, getFileContent, getFromGithub } from "@/app/shared";
+import { ArticleNotFound, getFileContent, getLastUpdated } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
 
@@ -65,12 +65,7 @@ export default async function Page({ params }: PageProps) {
 
   try {
     const content = await getFileContent(file, repo);
-    const commits = await getFromGithub(`https://api.github.com/repos/${repo}/commits?path=${file}&per_page=1`);
-    if (!commits || commits.length === 0) {
-      throw new Error("No commits found for this file");
-    }
-    const lastCommit = commits[0];
-    const lastUpdated = lastCommit.commit.author.date;
+    const lastUpdated = await getLastUpdated(repo, file);
     return <MarkdownView content={content} repo={repo} path={file} lastUpdated={lastUpdated} />; // Pass the repo and branch to MarkdownView
   } catch (error) {
     console.error("Failed to load", error);

@@ -49,6 +49,18 @@ export async function getDefaultBranch(repo: string) {
   return data.default_branch;
 }
 
+
+export async function getLastUpdated(repo: string, file: string) {
+  const commits = await getFromGithub(`https://api.github.com/repos/${repo}/commits?path=${file}&per_page=1`);
+  if (!commits || commits.length === 0) {
+    throw new Error("No commits found for this file");
+  }
+  const lastCommit = commits[0];
+  const lastUpdated = lastCommit.commit.author.date;
+  return lastUpdated;
+}
+
+
 export function ArticleNotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
