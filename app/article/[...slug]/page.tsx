@@ -2,6 +2,7 @@
 //   https://api.github.com/repos/vercel/next.js/contents/packages/next/README.md
 
 import { REPO, BRANCH, GITHUB_TOKEN } from "@/app/shared";
+import Markdown from "react-markdown";
 
 async function getData(file: string) {
   console.log("Fetching data for file:", file);
@@ -24,14 +25,14 @@ async function getData(file: string) {
 }
 
 
-function View ({ data }: { data: any }) {
+function View({ data }: { data: any }) {
   const { content, encoding } = data;
   const decodedContent = Buffer.from(content, encoding).toString("utf-8");
   return (
     <div className="flex flex-col gap-[16px]">
       <h2 className="text-[24px] font-bold">{data.path}</h2>
       <div className="text-[16px] text-gray-700">
-        <pre>{decodedContent}</pre>
+        <Markdown>{decodedContent}</Markdown>
       </div>
     </div>
   );
@@ -42,6 +43,7 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
   const file = params.slug.join("/");
   try {
     const data = await getData(file);
+    console.log("Data fetched:", data);
     return <View data={data} />;
   } catch (error) {
     console.error("Failed to load", error);
