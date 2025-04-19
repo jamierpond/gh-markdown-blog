@@ -1,6 +1,6 @@
 import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { ArticleNotFound, getPageData } from "@/app/shared";
+import { ArticleNotFound, getFileContent, getPageData } from "@/app/shared";
 import { REPO, BRANCH } from "@/app/shared";
 
 export default async function Page({ params }: PageProps) {
@@ -18,8 +18,7 @@ export default async function Page({ params }: PageProps) {
     if (!REPO || !BRANCH) {
       throw new Error("Repository or branch not specified");
     }
-    const data = await getPageData(file, REPO);
-    console.log("Data fetched:", data);
+    const content = getFileContent(file, REPO);
     return <MarkdownView data={data} repo={REPO} />; // Pass the repo and branch to MarkdownView
   } catch (error) {
     console.error("Failed to load", error);

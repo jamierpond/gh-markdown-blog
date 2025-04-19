@@ -9,14 +9,11 @@ export interface GithubResponse {
   path: string;
 }
 
-function View({ data }: { data: GithubResponse }) {
-  const { content, encoding } = data;
-  const decodedContent = Buffer.from(content, encoding).toString("utf-8");
-
+function View({ content, path }: { path: string, content: string }) {
   return (
     <div className="flex flex-col gap-[24px] p-6 sm:p-8 max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-lg shadow-md">
       <header className="border-b border-gray-200 dark:border-gray-700 pb-4">
-        <h2 className="text-[36px] font-bold text-gray-900 dark:text-white">{data.path}</h2>
+        <h2 className="text-[36px] font-bold text-gray-900 dark:text-white">{path}</h2>
         <div className="flex items-center mt-2 text-gray-500 dark:text-gray-400">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -91,14 +88,14 @@ function View({ data }: { data: GithubResponse }) {
             },
           }}
         >
-          {decodedContent}
+          {content}
         </Markdown>
       </div>
     </div>
   );
 }
 
-export function MarkdownView({ data, repo }: { data: GithubResponse, repo: string }) {
+export function MarkdownView({ content, repo, path }: { content: string, path: string, repo: string }) {
     return (
       <div className="min-h-screen py-12 px-4 sm:px-6 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-5xl mx-auto">
@@ -113,7 +110,7 @@ export function MarkdownView({ data, repo }: { data: GithubResponse, repo: strin
               Back to Home
             </Link>
           </div>
-          <View data={data} />
+          <View content={content} path={path} />
         </div>
       </div>
     );

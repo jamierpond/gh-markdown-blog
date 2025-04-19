@@ -34,6 +34,14 @@ export async function getPageData(file: string, repo: string) {
   return await getFromGithub(url, TEN_MINUTES_SECONDS);
 }
 
+export async function getFileContent(file: string, repo: string) {
+  const data = await getPageData(file, repo);
+  const { content, encoding } = data;
+  const decodedContent = Buffer.from(content, encoding).toString("utf-8");
+  return decodedContent;
+}
+
+
 export async function getDefaultBranch(repo: string) {
   const data = await getFromGithub(`https://api.github.com/repos/${repo}`, ONE_DAY_SECONDS);
   return data.default_branch;
