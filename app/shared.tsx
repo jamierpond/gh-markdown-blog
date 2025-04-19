@@ -4,7 +4,9 @@ export const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 import { AlertIcon } from "@/app/icons/svg";
 import Link from "next/link";
 
-export async function getFromGithub(url: string) {
+const TEN_MINUTES_SECONDS = 60 * 10;
+const ONE_DAY_SECONDS = 60 * 60 * 24;
+export async function getFromGithub(url: string, cacheSeconds: number = TEN_MINUTES_SECONDS) {
   const res = await fetch(
     url,
     {
@@ -12,7 +14,9 @@ export async function getFromGithub(url: string) {
         Accept: "application/vnd.github.v3+json",
         Authorization: `Bearer ${GITHUB_TOKEN}`,
       },
-    }
+      cache: 'force-cache',
+      next: { revalidate: cacheSeconds },
+    },
   );
 
   if (!res.ok) {
@@ -23,11 +27,16 @@ export async function getFromGithub(url: string) {
   return data;
 }
 
-export async function getPageData(file: string, repo: string, branch: string) {
-  console.log("Fetching data for file:", file);
+export async function getPageData(file: string, repo: string) {
+  const branch = await getDefaultBranch(repo);
   const url = `https://api.github.com/repos/${repo}/contents/${file}?ref=${branch}`;
   console.log("Fetching from URL:", url);
-  return await getFromGithub(url);
+  return await getFromGithub(url, TEN_MINUTES_SECONDS);
+}
+
+export async function getDefaultBranch(repo: string) {
+  const data = await getFromGithub(`https://api.github.com/repos/${repo}`, ONE_DAY_SECONDS);
+  return data.default_branch;
 }
 
 export function ArticleNotFound() {

@@ -1,6 +1,6 @@
 import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { ArticleNotFound, getPageData } from "@/app/shared";
+import { ArticleNotFound, getPageData, getDefaultBranch } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 
 export default async function Page({ params }: PageProps) {
@@ -9,31 +9,27 @@ export default async function Page({ params }: PageProps) {
   }
   const p = await params;
   const slug = p.slug as string[];
-  // userrepo is first two elements of slug
 
   const repo = `${slug[0]}/${slug[1]}`;
-  const branch = slug[2];
-  console.log("Repo:", repo);
-  console.log("Branch:", branch);
-
-  if (slug.length == 3) {
-    // return the browser page
-    return <FileBrowser repo={repo} branch={branch} />; // Pass the repo and branch to FileBrowser
-  }
 
   if (!slug) {
     return <div>Invalid slug</div>;
   }
 
-  // pop the first three
-  slug.splice(0, 3);
+  // user/reponame
+  const LEN_DEFAULT = 2;
+  if (slug.length == 2) {
+    return <FileBrowser repo={repo} />; // Pass the repo and branch to FileBrowser
+  }
+
+  slug.splice(0, LEN_DEFAULT);
   const file = slug.join("/");
   console.warn("File:", file);
 
   try {
-    const data = await getPageData(file, repo, branch);
+    const data = await getPageData(file, repo);
     console.log("Data fetched:", data);
-    return <MarkdownView data={data} repo={repo} branch={branch} />; // Pass the repo and branch to MarkdownView
+    return <MarkdownView data={data} repo={repo} />; // Pass the repo and branch to MarkdownView
   } catch (error) {
     console.error("Failed to load", error);
     return <ArticleNotFound />;

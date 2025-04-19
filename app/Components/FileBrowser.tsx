@@ -1,4 +1,4 @@
-import { getFromGithub } from '@/app/shared';
+import { getFromGithub, getDefaultBranch } from '@/app/shared';
 import Link from 'next/link';
 
 export interface FileItem {
@@ -7,11 +7,12 @@ export interface FileItem {
   url: string;
 }
 
-export default async function FileBrowser({ repo, branch }: { repo: string; branch: string }) {
+export default async function FileBrowser({ repo }: { repo: string }) {
+  const branch = await getDefaultBranch(repo);
   const files = await getFromGithub(`https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`);
   const tree = files.tree;
 
-  const redirectpath = `/${repo}/${branch}`;
+  const redirectpath = `/${repo}`;
 
   if (!tree) {
     return (
