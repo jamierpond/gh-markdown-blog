@@ -127,10 +127,12 @@ export default async function Page({ params }: PageProps) {
   if (!params) {
     return <div>Invalid parameters</div>;
   }
-  const slug = await params.slug;
+  const p = await params;
+  const slug = p.slug as string[];
   if (!slug) {
     return <div>Invalid slug</div>;
   }
+
   console.log("Page params:", params);
   const file = slug.join("/");
   try {
