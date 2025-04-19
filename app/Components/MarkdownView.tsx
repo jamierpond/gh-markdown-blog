@@ -98,13 +98,13 @@ function View({ data }: { data: GithubResponse }) {
   );
 }
 
-export function MarkdownView({ data }: { data: GithubResponse }) {
+export function MarkdownView({ data, repo, branch }: { data: GithubResponse, repo: string, branch: string }) {
     return (
       <div className="min-h-screen py-12 px-4 sm:px-6 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center mb-8">
             <Link
-              href="/"
+              href={`/${repo}/${branch}`}
               className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">

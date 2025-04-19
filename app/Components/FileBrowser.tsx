@@ -1,4 +1,5 @@
 import { getFromGithub } from '@/app/shared';
+import Link from 'next/link';
 
 export interface FileItem {
   path: string;
@@ -9,6 +10,8 @@ export interface FileItem {
 export default async function FileBrowser({ repo, branch }: { repo: string; branch: string }) {
   const files = await getFromGithub(`https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`);
   const tree = files.tree;
+
+  const redirectpath = `/${repo}/${branch}`;
 
   if (!tree) {
     return (
@@ -41,8 +44,9 @@ export default async function FileBrowser({ repo, branch }: { repo: string; bran
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <main className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-800 dark:text-slate-100 mb-2">{repo}</h1>
-          <p className="text-xl text-slate-600 dark:text-slate-300">A collection of articles from GitHub</p>
+          <Link href={`https://github.com/${repo}`} className="text-4xl font-bold text-slate-800 dark:text-slate-100 mb-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+            <h1>{repo}</h1>
+          </Link>
         </div>
 
         <div className="max-h-[70vh] overflow-y-auto pr-2 pb-4 rounded-lg">
@@ -68,15 +72,15 @@ export default async function FileBrowser({ repo, branch }: { repo: string; bran
                   </p>
                 </div>
                 <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 px-6 py-4">
-                  <a
-                    href={`/article/${file.path}`}
+                  <Link
+                    href={`${redirectpath}/${file.path}`}
                     className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center font-medium"
                   >
                     Read article
                     <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
-                  </a>
+                  </Link>
                 </div>
               </div>
             ))}

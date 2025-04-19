@@ -20,7 +20,7 @@ export default async function Page({ params }: PageProps) {
     }
     const data = await getPageData(file, REPO, BRANCH);
     console.log("Data fetched:", data);
-    return <MarkdownView data={data} />;
+    return <MarkdownView data={data} repo={REPO} branch={BRANCH} />; // Pass the repo and branch to MarkdownView
   } catch (error) {
     console.error("Failed to load", error);
     return <ArticleNotFound />;
