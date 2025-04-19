@@ -7,15 +7,14 @@ export default async function Page({ params }: PageProps) {
   if (!params) {
     return <div>Invalid parameters</div>;
   }
-
   const p = await params;
   const slug = p.slug as string[];
+
   const repo = `${slug[0]}/${slug[1]}`;
 
   if (!slug) {
     return <div>Invalid slug</div>;
   }
-
   // user/reponame
   const LEN_DEFAULT = 2;
   if (slug.length == 2) {
@@ -29,6 +28,7 @@ export default async function Page({ params }: PageProps) {
     const data = await getPageData(file, repo);
     return <MarkdownView data={data} repo={repo} />; // Pass the repo and branch to MarkdownView
   } catch (error) {
+    console.error("Failed to load", error);
     return <ArticleNotFound />;
   }
 }
