@@ -1,6 +1,6 @@
 # Markdown Features Supported
 
-ScottBruceHeart has excellent support for GitHub Flavored Markdown. This document showcases the various Markdown features available.
+gh-markdown-blog has excellent support for GitHub Flavored Markdown. This document showcases the various Markdown features available.
 
 ## Text Formatting
 
@@ -96,23 +96,3 @@ Here's a sentence with a footnote[^1].
 ## Emojis
 
 GitHub-style emojis: :smile: :rocket: :octocat:
-
-## Math (if supported by plugins)
-
-Inline math: $E=mc^2$
-
-Block math:
-
-$$
-\frac{d}{dx}(e^x) = e^x
-$$
-
-## Diagrams (if supported by plugins)
-
-```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
-```

@@ -41,20 +41,13 @@ npm run dev
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser to see your application.
 
-## Deployment on Vercel
+## Deployment
 
-Deploying to Vercel is incredibly simple:
+The easiest way to deploy is to click the "Deploy with Vercel" button in the README. You'll just need to set your environment variables during the setup process:
 
-1. Push your repository to GitHub
-2. Sign up or log in to [Vercel](https://vercel.com)
-3. Click "Import Project" and select your GitHub repository
-4. Add your environment variables:
-   - `NEXT_PUBLIC_GITHUB_REPO`
-   - `NEXT_PUBLIC_GITHUB_BRANCH` 
-   - `GITHUB_TOKEN`
-5. Click "Deploy"
-
-Vercel will automatically detect Next.js and apply the optimal build settings. Within minutes, your site will be live with a URL like `your-project.vercel.app`.
+- `NEXT_PUBLIC_GITHUB_REPO`
+- `NEXT_PUBLIC_GITHUB_BRANCH`
+- `GITHUB_TOKEN`
 
 ## Configuration Options
 
