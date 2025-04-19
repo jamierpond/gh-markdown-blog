@@ -1,4 +1,4 @@
-import { REPO, BRANCH, GITHUB_TOKEN } from "@/app/shared";
+import { REPO, BRANCH, getFromGithub } from "@/app/shared";
 
 interface FileItem {
   path: string;
@@ -7,16 +7,9 @@ interface FileItem {
 }
 
 export default async function Home() {
-  const files = await fetch(`https://api.github.com/repos/${REPO}/git/trees/${BRANCH}?recursive=1`,
-    {
-      headers: {
-        Accept: "application/vnd.github.v3+json",
-        Authorization: `Bearer: ${GITHUB_TOKEN}`,
-      },
-    }
-  ).then((res) => res.json());
-
+  const files = await getFromGithub(`https://api.github.com/repos/${REPO}/git/trees/${BRANCH}?recursive=1`);
   const tree = files.tree;
+
   if (!tree) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -51,12 +44,12 @@ export default async function Home() {
           <h1 className="text-4xl font-bold text-slate-800 dark:text-slate-100 mb-2">{REPO}</h1>
           <p className="text-xl text-slate-600 dark:text-slate-300">A collection of articles from GitHub</p>
         </div>
-        
+
         <div className="max-h-[70vh] overflow-y-auto pr-2 pb-4 rounded-lg">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {markdownFiles.map((file: FileItem) => (
-              <div 
-                key={file.sha} 
+              <div
+                key={file.sha}
                 className="bg-white dark:bg-slate-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col"
               >
                 <div className="p-6 flex-grow">
@@ -75,8 +68,8 @@ export default async function Home() {
                   </p>
                 </div>
                 <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 px-6 py-4">
-                  <a 
-                    href={`/article/${file.path}`} 
+                  <a
+                    href={`/article/${file.path}`}
                     className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center font-medium"
                   >
                     Read article

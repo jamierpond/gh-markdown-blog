@@ -1,27 +1,13 @@
 import { PageProps } from "@/.next/types/app/layout";
-import { REPO, BRANCH, GITHUB_TOKEN } from "@/app/shared";
+import { REPO, BRANCH, getFromGithub } from "@/app/shared";
 import Link from "next/link";
 import { MarkdownView } from "@/app/Components/MarkdownView";
 import { AlertIcon } from "@/app/icons/svg";
 
 async function getData(file: string) {
   console.log("Fetching data for file:", file);
-  const res = await fetch(
-    `https://api.github.com/repos/${REPO}/contents/${file}?ref=${BRANCH}`,
-    {
-      headers: {
-        Accept: "application/vnd.github.v3+json",
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
-      },
-    }
-  );
-
-  if (!res.ok) {
-    console.error("Failed to fetch data", res.status, res.statusText);
-    throw new Error("Failed to fetch data");
-  }
-
-  return res.json();
+  const url = `https://api.github.com/repos/${REPO}/contents/${file}?ref=${BRANCH}`;
+  return await getFromGithub(url);
 }
 
 function ArticleNotFound() {
