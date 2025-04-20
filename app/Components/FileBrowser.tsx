@@ -1,4 +1,4 @@
-import { getFromGithub, getDefaultBranch } from '@/app/shared';
+import { getDefaultBranch } from '@/app/shared';
 import Link from 'next/link';
 
 export interface FileItem {
@@ -7,11 +7,43 @@ export interface FileItem {
   url: string;
 }
 
+// Define a function to get the repository files using REST API since it natively supports recursive listing
+async function getRepoFiles(repo: string, branch: string) {
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+  
+  // GitHub's GraphQL API doesn't easily support recursive file listings,
+  // so we'll use the Git Data REST API which has built-in support for this
+  const url = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`;
+  
+  const res = await fetch(
+    url,
+    {
+      headers: {
+        Accept: "application/vnd.github.v3+json",
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+      },
+      cache: 'force-cache',
+      next: { revalidate: 600 }, // 10 minutes
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch repository files");
+  }
+
+  const data = await res.json();
+  
+  if (data.message) {
+    throw new Error(`GitHub API Error: ${data.message}`);
+  }
+  
+  return data;
+}
+
 export default async function FileBrowser({ repo }: { repo: string }) {
   const branch = await getDefaultBranch(repo);
-  const files = await getFromGithub(`https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`);
+  const files = await getRepoFiles(repo, branch);
   const tree = files.tree;
-
   const redirectpath = `/${repo}`;
 
   if (!tree) {
@@ -23,7 +55,7 @@ export default async function FileBrowser({ repo }: { repo: string }) {
     );
   }
 
-  const markdownFiles = files.tree.filter(
+  const markdownFiles = tree.filter(
     (file: FileItem) => file.path.endsWith(".md") || file.path.endsWith(".mdx")
   );
 
@@ -89,7 +121,7 @@ export default async function FileBrowser({ repo }: { repo: string }) {
         </div>
       </main>
       <footer className="py-6 text-center text-slate-500 dark:text-slate-400 text-sm">
-        <p>© {new Date().getFullYear()} {repo}</p>
+        <p>© 2025 {repo}</p>
       </footer>
     </div>
   );

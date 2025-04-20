@@ -20,7 +20,7 @@ function View({ content, path, lastUpdated }: { path: string, content: string, l
           </svg>
           <span className="text-sm">Markdown Article</span>
           <span className="mx-2 text-gray-400">•</span>
-          <span className="text-sm">Last updated: {new Date(lastUpdated).toLocaleDateString()}</span>
+          <span className="text-sm">Last updated: {lastUpdated.substring(0, 10)}</span>
         </div>
       </header>
       <div className="prose prose-lg dark:prose-invert max-w-none">
