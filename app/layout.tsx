@@ -137,7 +137,7 @@ export async function generateMetadata(): Promise<Metadata> {
         category: "technology",
       };
     }
-  
+
 
   // Fallback metadata if API call fails
   return {
@@ -221,7 +221,7 @@ export default async function RootLayout({
           } : undefined,
         };
       }
-    
+
   }
 
   return (
@@ -229,7 +229,7 @@ export default async function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#9333ea" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.png" sizes="any" />
         {jsonLd && (
           <script
             type="application/ld+json"
