@@ -48,10 +48,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const title = extractTitle(content, file);
     const lastUpdated = await getLastUpdated(username, file);
 
-    // Extract better description
+    // Extract better description - aim for 155-160 characters
     const contentWithoutTitle = content.replace(/^#[^\n]*\n/, '');
     const firstParagraph = contentWithoutTitle.split('\n\n').find(p => p.trim() && !p.startsWith('#')) || '';
-    const description = firstParagraph.slice(0, 160) || content.slice(0, 160);
+    let description = firstParagraph.slice(0, 300).trim();
+
+    // If description is too short, try to get more content
+    if (description.length < 100) {
+      const secondParagraph = contentWithoutTitle.split('\n\n').filter(p => p.trim() && !p.startsWith('#'))[1] || '';
+      description = (firstParagraph + ' ' + secondParagraph).slice(0, 300).trim();
+    }
+
+    // Truncate at sentence boundary if possible, aim for ~155 chars
+    if (description.length > 155) {
+      const sentenceEnd = description.slice(0, 155).lastIndexOf('.');
+      if (sentenceEnd > 100) {
+        description = description.slice(0, sentenceEnd + 1);
+      } else {
+        description = description.slice(0, 155) + '...';
+      }
+    }
 
     // Calculate reading time
     const wordCount = content.split(/\s+/).length;
@@ -61,9 +77,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${username}.madea.blog`;
     const url = `${baseUrl}/${file}`;
-
-    // Use author's GitHub avatar as the social image
-    const socialImage = `https://github.com/${username}.png?size=1200`;
 
     // Fetch author name
     let authorName = username;
@@ -80,18 +93,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       // Use fallback
     }
 
+    // Create dynamic OG image URL
+    const ogImageUrl = `${baseUrl}/og?title=${encodeURIComponent(title)}&author=${encodeURIComponent(authorName)}&username=${encodeURIComponent(username)}&date=${encodeURIComponent(lastUpdated)}`;
+
+    // Create rich, descriptive title with context (aim for 50-60 chars)
+    const pageTitle = `${title} | ${authorName}'s Blog`;
+
     return {
-      title: `${title}`,
+      title: pageTitle,
       description: description,
       authors: [{ name: authorName, url: `https://github.com/${username}` }],
-      keywords: title.split(' ').concat(['blog', 'article', username]),
+      keywords: title.split(' ').concat(['blog', 'article', username, authorName]),
       alternates: {
         canonical: url,
       },
       openGraph: {
         type: 'article',
         url: url,
-        title: `${title}`,
+        title: pageTitle,
         description: description,
         siteName: `${authorName}'s Blog`,
         publishedTime: lastUpdated,
@@ -99,18 +118,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         authors: [authorName],
         images: [
           {
-            url: socialImage,
+            url: ogImageUrl,
             width: 1200,
-            height: 1200,
-            alt: authorName,
+            height: 630,
+            alt: `${title} by ${authorName}`,
           },
         ],
       },
       twitter: {
         card: "summary_large_image",
-        title: `${title}`,
+        title: pageTitle,
         description: description,
-        images: [socialImage],
+        images: [ogImageUrl],
         creator: `@${username}`,
         site: '@madeablog',
       },
