@@ -64,32 +64,30 @@ export async function GET() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
-            padding: '80px',
+            justifyContent: 'space-between',
+            padding: '70px',
             width: '100%',
             height: '100%',
             position: 'relative',
           }}
         >
-          {/* Card container with glassmorphism */}
+          {/* Spacer */}
+          <div style={{ height: '50px' }} />
+
+          {/* Center content */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              backgroundColor: 'rgba(17, 24, 39, 0.6)',
-              padding: '60px 80px',
-              borderRadius: '24px',
-              border: '1px solid rgba(31, 41, 55, 0.5)',
-              boxShadow: '0 25px 50px rgba(147, 51, 234, 0.2)',
               maxWidth: '1000px',
             }}
           >
             {/* Emoji */}
             <div
               style={{
-                fontSize: '80px',
-                marginBottom: '30px',
+                fontSize: '120px',
+                marginBottom: '40px',
               }}
             >
               📝
@@ -98,16 +96,16 @@ export async function GET() {
             {/* Title */}
             <h1
               style={{
-                fontSize: '72px',
+                fontSize: '100px',
                 fontWeight: '800',
                 fontFamily: 'Inter',
                 background: 'linear-gradient(to right, #a855f7, #ec4899, #60a5fa)',
                 backgroundClip: 'text',
                 color: 'transparent',
-                lineHeight: 1.2,
-                margin: '0 0 20px 0',
+                lineHeight: 1.1,
+                margin: '0 0 30px 0',
                 textAlign: 'center',
-                letterSpacing: '-0.02em',
+                letterSpacing: '-0.03em',
               }}
             >
               madea.blog
@@ -116,14 +114,14 @@ export async function GET() {
             {/* Tagline */}
             <p
               style={{
-                fontSize: '32px',
+                fontSize: '42px',
                 color: '#9ca3af',
                 fontWeight: '400',
                 fontFamily: 'Inter',
                 textAlign: 'center',
                 margin: 0,
-                maxWidth: '800px',
-                lineHeight: 1.4,
+                maxWidth: '900px',
+                lineHeight: 1.3,
               }}
             >
               Turn your GitHub markdown into a beautiful blog
@@ -133,11 +131,9 @@ export async function GET() {
           {/* Footer branding */}
           <div
             style={{
-              position: 'absolute',
-              bottom: '40px',
               display: 'flex',
               alignItems: 'center',
-              fontSize: '20px',
+              fontSize: '32px',
               fontWeight: '700',
               fontFamily: 'Inter',
               color: '#c084fc',

@@ -71,105 +71,91 @@ export async function GET(request: Request) {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
-            padding: '80px',
+            justifyContent: 'space-between',
+            padding: '70px',
             width: '100%',
             height: '100%',
             position: 'relative',
           }}
         >
-          {/* Card container with glassmorphism - dark:bg-gray-900/50 dark:border-gray-800/50 */}
+          {/* Top section - Author info */}
           <div
             style={{
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
-              backgroundColor: 'rgba(17, 24, 39, 0.6)',
-              padding: '60px 80px',
-              borderRadius: '24px',
-              border: '1px solid rgba(31, 41, 55, 0.5)',
-              boxShadow: '0 25px 50px rgba(147, 51, 234, 0.2)',
-              maxWidth: '1000px',
+              width: '100%',
             }}
           >
-            {/* Author info */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '40px',
-              }}
-            >
-              {username && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={`https://github.com/${username}.png`}
-                  alt={author}
-                  width="64"
-                  height="64"
-                  style={{
-                    borderRadius: '50%',
-                    marginRight: '20px',
-                  }}
-                />
-              )}
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {username && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`https://github.com/${username}.png`}
+                alt={author}
+                width="100"
+                height="100"
+                style={{
+                  borderRadius: '50%',
+                  marginRight: '30px',
+                  border: '4px solid rgba(147, 51, 234, 0.3)',
+                }}
+              />
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div
+                style={{
+                  fontSize: '48px',
+                  fontWeight: '700',
+                  fontFamily: 'Inter',
+                  background: 'linear-gradient(to right, #9333ea, #ec4899, #3b82f6)',
+                  backgroundClip: 'text',
+                  color: 'transparent',
+                }}
+              >
+                {author}
+              </div>
+              {date && (
                 <div
                   style={{
                     fontSize: '32px',
-                    fontWeight: '700',
+                    color: '#9ca3af',
+                    fontWeight: '400',
                     fontFamily: 'Inter',
-                    background: 'linear-gradient(to right, #9333ea, #ec4899, #3b82f6)',
-                    backgroundClip: 'text',
-                    color: 'transparent',
+                    marginTop: '8px',
                   }}
                 >
-                  {author}
+                  {new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </div>
-                {date && (
-                  <div
-                    style={{
-                      fontSize: '18px',
-                      color: '#9ca3af',
-                      fontWeight: '400',
-                      fontFamily: 'Inter',
-                    }}
-                  >
-                    {new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-                  </div>
-                )}
-              </div>
+              )}
             </div>
-
-            {/* Title - vibrant gradient for dark mode */}
-            <h1
-              style={{
-                fontSize: title.length > 60 ? '48px' : title.length > 40 ? '56px' : '64px',
-                fontWeight: '800',
-                fontFamily: 'Inter',
-                background: 'linear-gradient(to right, #a855f7, #ec4899, #60a5fa)',
-                backgroundClip: 'text',
-                color: 'transparent',
-                lineHeight: 1.2,
-                margin: 0,
-                textAlign: 'center',
-                paddingLeft: '20px',
-                paddingRight: '20px',
-                letterSpacing: '-0.02em',
-              }}
-            >
-              {title}
-            </h1>
           </div>
 
-          {/* Footer branding - dark:text-purple-400 */}
+          {/* Middle section - Title */}
+          <h1
+            style={{
+              fontSize: title.length > 80 ? '64px' : title.length > 60 ? '72px' : title.length > 40 ? '80px' : '90px',
+              fontWeight: '800',
+              fontFamily: 'Inter',
+              background: 'linear-gradient(to right, #a855f7, #ec4899, #60a5fa)',
+              backgroundClip: 'text',
+              color: 'transparent',
+              lineHeight: 1.1,
+              margin: '0',
+              textAlign: 'center',
+              paddingLeft: '40px',
+              paddingRight: '40px',
+              letterSpacing: '-0.03em',
+              maxWidth: '1100px',
+            }}
+          >
+            {title}
+          </h1>
+
+          {/* Footer branding */}
           <div
             style={{
-              position: 'absolute',
-              bottom: '40px',
               display: 'flex',
               alignItems: 'center',
-              fontSize: '20px',
+              fontSize: '32px',
               fontWeight: '700',
               fontFamily: 'Inter',
               color: '#c084fc',

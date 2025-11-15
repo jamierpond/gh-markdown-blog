@@ -70,24 +70,22 @@ export async function GET(request: Request) {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
-            padding: '80px',
+            justifyContent: 'space-between',
+            padding: '70px',
             width: '100%',
             height: '100%',
             position: 'relative',
           }}
         >
-          {/* Card container with glassmorphism */}
+          {/* Spacer */}
+          <div style={{ height: '50px' }} />
+
+          {/* Center content */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              backgroundColor: 'rgba(17, 24, 39, 0.6)',
-              padding: '60px 80px',
-              borderRadius: '24px',
-              border: '1px solid rgba(31, 41, 55, 0.5)',
-              boxShadow: '0 25px 50px rgba(147, 51, 234, 0.2)',
               maxWidth: '1000px',
             }}
           >
@@ -97,12 +95,12 @@ export async function GET(request: Request) {
               <img
                 src={avatar}
                 alt={name}
-                width="120"
-                height="120"
+                width="180"
+                height="180"
                 style={{
                   borderRadius: '50%',
-                  marginBottom: '30px',
-                  border: '4px solid rgba(147, 51, 234, 0.5)',
+                  marginBottom: '40px',
+                  border: '6px solid rgba(147, 51, 234, 0.4)',
                 }}
               />
             )}
@@ -110,16 +108,16 @@ export async function GET(request: Request) {
             {/* Name */}
             <h1
               style={{
-                fontSize: '72px',
+                fontSize: '90px',
                 fontWeight: '800',
                 fontFamily: 'Inter',
                 background: 'linear-gradient(to right, #a855f7, #ec4899, #60a5fa)',
                 backgroundClip: 'text',
                 color: 'transparent',
-                lineHeight: 1.2,
-                margin: '0 0 20px 0',
+                lineHeight: 1.1,
+                margin: '0 0 30px 0',
                 textAlign: 'center',
-                letterSpacing: '-0.02em',
+                letterSpacing: '-0.03em',
               }}
             >
               {name}
@@ -129,17 +127,17 @@ export async function GET(request: Request) {
             {bio && (
               <p
                 style={{
-                  fontSize: '28px',
+                  fontSize: '40px',
                   color: '#9ca3af',
                   fontWeight: '400',
                   fontFamily: 'Inter',
                   textAlign: 'center',
                   margin: 0,
-                  maxWidth: '800px',
-                  lineHeight: 1.4,
+                  maxWidth: '1000px',
+                  lineHeight: 1.3,
                 }}
               >
-                {bio.length > 100 ? bio.slice(0, 100) + '...' : bio}
+                {bio.length > 80 ? bio.slice(0, 80) + '...' : bio}
               </p>
             )}
           </div>
@@ -147,11 +145,9 @@ export async function GET(request: Request) {
           {/* Footer branding */}
           <div
             style={{
-              position: 'absolute',
-              bottom: '40px',
               display: 'flex',
               alignItems: 'center',
-              fontSize: '20px',
+              fontSize: '32px',
               fontWeight: '700',
               fontFamily: 'Inter',
               color: '#c084fc',
