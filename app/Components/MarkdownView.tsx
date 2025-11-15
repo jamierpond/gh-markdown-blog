@@ -14,6 +14,7 @@ function View({ content, lastUpdated, title, username, authorName }: { content: 
     <article className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-3xl border border-gray-200/50 dark:border-gray-800/50 overflow-hidden shadow-xl">
       <header className="px-8 sm:px-12 pt-12 pb-8 border-b border-gray-200/50 dark:border-gray-800/50">
         <div className="flex items-center gap-3 mb-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`https://github.com/${username}.png`}
             alt={username}
@@ -75,6 +76,7 @@ function View({ content, lastUpdated, title, username, authorName }: { content: 
 
             img: ({ ...props }) => (
               <div className="flex justify-center my-10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img className="max-w-full h-auto rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800" {...props} alt="" />
               </div>
             ),

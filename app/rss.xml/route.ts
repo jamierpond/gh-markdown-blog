@@ -63,7 +63,6 @@ export async function GET() {
 
     // Fetch user data for author info
     let authorName = username;
-    let authorEmail = `${username}@users.noreply.github.com`;
     try {
       const response = await fetch(`https://api.github.com/users/${username}`, {
         headers: {
@@ -74,9 +73,6 @@ export async function GET() {
       if (response.ok) {
         const userData = await response.json();
         authorName = userData.name || username;
-        if (userData.email) {
-          authorEmail = userData.email;
-        }
       }
     } catch {
       // Use fallback
