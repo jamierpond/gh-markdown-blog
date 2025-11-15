@@ -1,6 +1,8 @@
 import FileBrowser from "@/app/Components/FileBrowser";
 import { getUsername } from "@/app/shared";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   const username = await getUsername();
 
