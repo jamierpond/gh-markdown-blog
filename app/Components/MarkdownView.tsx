@@ -46,7 +46,7 @@ function View({ content, lastUpdated, title, username, authorName }: { content: 
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeHighlight]}
           components={{
-            h1: ({ ...props }) => <h1 className="text-3xl font-bold mt-12 mb-6 text-gray-900 dark:text-white" {...props} />,
+            h1: ({ ...props }) => <h1 className="text-3xl font-bold mt-0 mb-6 text-gray-900 dark:text-white first:mt-0" {...props} />,
             h2: ({ ...props }) => <h2 className="text-2xl font-bold mt-10 mb-4 text-gray-900 dark:text-white" {...props} />,
             h3: ({ ...props }) => <h3 className="text-xl font-semibold mt-8 mb-3 text-gray-900 dark:text-white" {...props} />,
             h4: ({ ...props }) => <h4 className="text-lg font-medium mt-6 mb-2 text-gray-800 dark:text-gray-200" {...props} />,
