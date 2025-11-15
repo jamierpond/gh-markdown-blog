@@ -97,13 +97,13 @@ function View({ content, path, lastUpdated }: { path: string, content: string, l
   );
 }
 
-export function MarkdownView({ content, repo, path, lastUpdated }: { content: string, path: string, repo: string, lastUpdated: string }) {
+export function MarkdownView({ content, username, path, lastUpdated }: { content: string, path: string, username: string, lastUpdated: string }) {
     return (
       <div className="min-h-screen py-12 px-4 sm:px-6 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center mb-8">
             <Link
-              href={`/${repo}`}
+              href="/"
               className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">

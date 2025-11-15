@@ -1,12 +1,34 @@
 export const DEFAULT_REPO = process.env.NEXT_PUBLIC_GITHUB_REPO;
 export const DEFAULT_BRANCH = process.env.NEXT_PUBLIC_GITHUB_BRANCH;
 export const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+export const FIXED_REPO_NAME = "madea.blog"; // Special fixed repository name
+import assert from "assert";
+
 import { AlertIcon } from "@/app/icons/svg";
 import Link from "next/link";
+import { headers } from "next/headers";
 
 const TEN_MINUTES_SECONDS = 60 * 10;
 const ONE_DAY_SECONDS = 60 * 60 * 24;
+
+// Helper function to get username from request headers (set by middleware)
+export async function getUsername(): Promise<string> {
+  const headersList = await headers();
+  const username = headersList.get('x-github-username') || '';
+  return username;
+}
+
+// Helper function to build the full repo path: username/madea.blog
+export async function getRepoPath(username?: string): Promise<string> {
+  const user = username || await getUsername();
+  if (!user) {
+    throw new Error("No GitHub username found in subdomain");
+  }
+  return `${user}/${FIXED_REPO_NAME}`;
+}
+
 export async function getFromGithub(url: string, cacheSeconds: number = TEN_MINUTES_SECONDS) {
+  assert(GITHUB_TOKEN, "you must provide a GITHUB_TOKEN in your environment variables");
   const res = await fetch(
     url,
     {
@@ -27,8 +49,9 @@ export async function getFromGithub(url: string, cacheSeconds: number = TEN_MINU
   return data;
 }
 
-export async function getPageData(file: string, repo: string) {
-  const branch = await getDefaultBranch(repo);
+export async function getPageData(file: string, username: string) {
+  const repo = await getRepoPath(username);
+  const branch = await getDefaultBranch(username);
   const url = `https://api.github.com/repos/${repo}/contents/${file}?ref=${branch}`;
   console.log("Fetching from URL:", url);
   const data = await getFromGithub(url, TEN_MINUTES_SECONDS);
@@ -36,21 +59,23 @@ export async function getPageData(file: string, repo: string) {
 }
 
 
-export async function getFileContent(file: string, repo: string) {
-  const data = await getPageData(file, repo);
+export async function getFileContent(file: string, username: string) {
+  const data = await getPageData(file, username);
   const { content, encoding } = data;
   const decodedContent = Buffer.from(content, encoding).toString("utf-8");
   return decodedContent;
 }
 
 
-export async function getDefaultBranch(repo: string) {
+export async function getDefaultBranch(username: string) {
+  const repo = await getRepoPath(username);
   const data = await getFromGithub(`https://api.github.com/repos/${repo}`, ONE_DAY_SECONDS);
   return data.default_branch;
 }
 
 
-export async function getLastUpdated(repo: string, file: string) {
+export async function getLastUpdated(username: string, file: string) {
+  const repo = await getRepoPath(username);
   const commits = await getFromGithub(`https://api.github.com/repos/${repo}/commits?path=${file}&per_page=1`);
   if (!commits || commits.length === 0) {
     throw new Error("No commits found for this file");

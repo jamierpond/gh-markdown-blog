@@ -1,4 +1,4 @@
-import { getFromGithub, getDefaultBranch } from '@/app/shared';
+import { getFromGithub, getDefaultBranch, getRepoPath } from '@/app/shared';
 import Link from 'next/link';
 
 export interface FileItem {
@@ -7,12 +7,11 @@ export interface FileItem {
   url: string;
 }
 
-export default async function FileBrowser({ repo }: { repo: string }) {
-  const branch = await getDefaultBranch(repo);
+export default async function FileBrowser({ username }: { username: string }) {
+  const repo = await getRepoPath(username);
+  const branch = await getDefaultBranch(username);
   const files = await getFromGithub(`https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`);
   const tree = files.tree;
-
-  const redirectpath = `/${repo}`;
 
   if (!tree) {
     return (
@@ -46,7 +45,7 @@ export default async function FileBrowser({ repo }: { repo: string }) {
       <main className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <Link href={`https://github.com/${repo}`} className="text-4xl font-bold text-slate-800 dark:text-slate-100 mb-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-            <h1>{repo}</h1>
+            <h1>{username}&apos;s Blog</h1>
           </Link>
         </div>
 
@@ -74,7 +73,7 @@ export default async function FileBrowser({ repo }: { repo: string }) {
                 </div>
                 <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 px-6 py-4">
                   <Link
-                    href={`${redirectpath}/${file.path}`}
+                    href={`/${file.path}`}
                     className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center font-medium"
                   >
                     Read article
@@ -89,7 +88,7 @@ export default async function FileBrowser({ repo }: { repo: string }) {
         </div>
       </main>
       <footer className="py-6 text-center text-slate-500 dark:text-slate-400 text-sm">
-        <p>© {new Date().getFullYear()} {repo}</p>
+        <p>© {new Date().getFullYear()} {username}</p>
       </footer>
     </div>
   );

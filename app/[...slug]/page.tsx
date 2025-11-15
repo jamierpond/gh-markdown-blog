@@ -1,6 +1,6 @@
 import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { ArticleNotFound, getFileContent, getLastUpdated } from "@/app/shared";
+import { ArticleNotFound, getFileContent, getLastUpdated, getUsername, getRepoPath } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
 
@@ -12,40 +12,44 @@ interface Params {
 async function parseParams(params: Promise<Params>) {
   const p = await params;
   const slug = p.slug as string[];
-  const repo = `${slug[0]}/${slug[1]}`;
-  const file = slug.slice(2).join("/");
-  return { repo, file };
+  // Now slug only represents the file path (no repo info)
+  const file = slug.join("/");
+  return { file };
 }
 
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  if (!params) {
+  const username = await getUsername();
+
+  if (!params || !username) {
     return {
       title: "Blogify your GitHub Repo",
       description: "Blogify your GitHub Repo",
     };
   }
 
-  const { repo, file } = await parseParams(params);
+  const { file } = await parseParams(params);
+  const repo = await getRepoPath(username);
+
   if (!file) {
     return {
-      title: `${repo} - Blog`,
+      title: `${username}'s Blog`,
       description: "Blogify your GitHub Repo",
     };
   }
 
-  const content = await getFileContent(file, repo);
+  const content = await getFileContent(file, username);
   const first160Chars = content.slice(0, 160);
   return {
-    title: `${repo} - ${file || "Blog"}`,
+    title: `${username} - ${file || "Blog"}`,
     description: `${first160Chars}...`,
     openGraph: {
-      title: `${repo} - ${file || "Blog"}`,
+      title: `${username} - ${file || "Blog"}`,
       description: `${first160Chars}...`,
       images: ["https://pond.audio/pup.jpg"],
     },
     twitter: {
-      title: `${repo} - ${file || "Blog"}`,
+      title: `${username} - ${file || "Blog"}`,
       description: `${first160Chars}...`,
       card: "summary",
       images: ["https://pond.audio/pup.jpg"],
@@ -54,19 +58,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function Page({ params }: PageProps) {
-  if (!params) {
+  const username = await getUsername();
+
+  if (!params || !username) {
     return <ArticleNotFound />;
   }
-  const { repo, file } = await parseParams(params);
+
+  const { file } = await parseParams(params);
 
   if (!file) {
-    return <FileBrowser repo={repo} />; // Pass the repo and branch to FileBrowser
+    return <FileBrowser username={username} />;
   }
 
   try {
-    const content = await getFileContent(file, repo);
-    const lastUpdated = await getLastUpdated(repo, file);
-    return <MarkdownView content={content} repo={repo} path={file} lastUpdated={lastUpdated} />; // Pass the repo and branch to MarkdownView
+    const content = await getFileContent(file, username);
+    const lastUpdated = await getLastUpdated(username, file);
+    return <MarkdownView content={content} username={username} path={file} lastUpdated={lastUpdated} />;
   } catch (error) {
     console.error("Failed to load", error);
     return <ArticleNotFound />;
