@@ -7,7 +7,7 @@ path: /og
 method: GET
 
 query:
-  title: "Something Weird AF"
-  author: "Steve Jobs"
-  username: "steve"
+  title: "Your new blog: Abusing GitHub as a CMS"
+  author: "Jamie Pond"
+  username: "jamierpond"
   date: "2025-11-14"
