@@ -19,12 +19,27 @@ export async function generateMetadata(): Promise<Metadata> {
   // Default metadata for the root domain (madea.blog)
   if (!username) {
     return {
+      metadataBase: new URL("https://madea.blog"),
       title: "madea.blog - Turn Your GitHub Repo Into a Beautiful Blog",
       description: "Transform your GitHub markdown files into a beautiful, fast blog. Zero configuration required. Just create a madea.blog repo and start writing.",
-      keywords: ["blog", "github", "markdown", "static site", "blogging platform"],
+      keywords: ["blog", "github", "markdown", "static site", "blogging platform", "github pages", "markdown blog", "developer blog"],
       authors: [{ name: "madea.blog" }],
+      creator: "madea.blog",
+      publisher: "madea.blog",
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      },
       openGraph: {
         type: "website",
+        locale: "en_US",
         url: "https://madea.blog",
         title: "madea.blog - Turn Your GitHub Repo Into a Beautiful Blog",
         description: "Transform your GitHub markdown files into a beautiful, fast blog. Zero configuration required.",
@@ -36,10 +51,16 @@ export async function generateMetadata(): Promise<Metadata> {
         description: "Transform your GitHub markdown files into a beautiful, fast blog. Zero configuration required.",
         site: "@madeablog",
       },
+      verification: {
+        google: process.env.GOOGLE_SITE_VERIFICATION,
+      },
+      category: "technology",
     };
   }
 
   // Personalized metadata for user subdomains
+  const baseUrl = `https://${username}.madea.blog`;
+
   try {
     const response = await fetch(`https://api.github.com/users/${username}`, {
       headers: {
@@ -53,19 +74,39 @@ export async function generateMetadata(): Promise<Metadata> {
       const name = userData.name || username;
       const bio = userData.bio || `${name}'s blog powered by madea.blog`;
       const avatar = `https://github.com/${username}.png?size=1200`;
-      const baseUrl = `https://${username}.madea.blog`;
+      const location = userData.location;
+      const twitterUsername = userData.twitter_username;
 
       return {
+        metadataBase: new URL(baseUrl),
         title: {
           default: `${name}'s Blog`,
           template: `%s - ${name}`,
         },
         description: bio,
-        keywords: ["blog", "markdown", username, name],
+        keywords: ["blog", "markdown", username, name, "developer blog", "tech blog", "programming"],
         authors: [{ name, url: `https://github.com/${username}` }],
         creator: name,
+        publisher: name,
+        robots: {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+            'max-video-preview': -1,
+            'max-image-preview': 'large',
+            'max-snippet': -1,
+          },
+        },
+        alternates: {
+          types: {
+            'application/rss+xml': `${baseUrl}/rss.xml`,
+          },
+        },
         openGraph: {
           type: "website",
+          locale: "en_US",
           url: baseUrl,
           title: `${name}'s Blog`,
           description: bio,
@@ -84,9 +125,11 @@ export async function generateMetadata(): Promise<Metadata> {
           title: `${name}'s Blog`,
           description: bio,
           images: [avatar],
-          creator: `@${username}`,
+          creator: twitterUsername ? `@${twitterUsername}` : `@${username}`,
           site: "@madeablog",
         },
+        ...(location && { other: { 'geo.region': location } }),
+        category: "technology",
       };
     }
   } catch {
@@ -95,14 +138,34 @@ export async function generateMetadata(): Promise<Metadata> {
 
   // Fallback metadata if API call fails
   return {
+    metadataBase: new URL(baseUrl),
     title: {
       default: `${username}'s Blog`,
       template: `%s - ${username}`,
     },
     description: `${username}'s blog powered by madea.blog`,
     authors: [{ name: username, url: `https://github.com/${username}` }],
+    creator: username,
+    publisher: username,
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+    alternates: {
+      types: {
+        'application/rss+xml': `${baseUrl}/rss.xml`,
+      },
+    },
     openGraph: {
       type: "website",
+      locale: "en_US",
       title: `${username}'s Blog`,
       description: `${username}'s blog powered by madea.blog`,
       siteName: `${username}'s Blog`,
@@ -114,16 +177,72 @@ export async function generateMetadata(): Promise<Metadata> {
       creator: `@${username}`,
       site: "@madeablog",
     },
+    category: "technology",
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const username = await getUsername();
+  let jsonLd = null;
+
+  // Add JSON-LD structured data for user profiles
+  if (username) {
+    try {
+      const response = await fetch(`https://api.github.com/users/${username}`, {
+        headers: {
+          Accept: 'application/vnd.github.v3+json',
+        },
+        next: { revalidate: 3600 },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        const name = userData.name || username;
+        const bio = userData.bio;
+        const avatar = `https://github.com/${username}.png`;
+        const baseUrl = `https://${username}.madea.blog`;
+
+        jsonLd = {
+          '@context': 'https://schema.org',
+          '@type': 'Person',
+          name: name,
+          url: baseUrl,
+          image: avatar,
+          sameAs: [
+            `https://github.com/${username}`,
+            ...(userData.twitter_username ? [`https://twitter.com/${userData.twitter_username}`] : []),
+            ...(userData.blog ? [userData.blog] : []),
+          ],
+          ...(bio && { description: bio }),
+          ...(userData.location && { address: { '@type': 'PostalAddress', addressLocality: userData.location } }),
+          jobTitle: 'Developer',
+          worksFor: userData.company ? {
+            '@type': 'Organization',
+            name: userData.company.replace('@', ''),
+          } : undefined,
+        };
+      }
+    } catch {
+      // Ignore errors
+    }
+  }
+
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#9333ea" />
+        {jsonLd && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
+        )}
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

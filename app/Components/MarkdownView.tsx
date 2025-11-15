@@ -121,8 +121,19 @@ export async function MarkdownView({ content, path, lastUpdated, title, username
       ? content.split('\n')[0].substring(2).trim()
       : path.replace(/\.(md|mdx)$/, '').replace(/[-_]/g, ' ').split('/').pop() || path;
 
-    // Fetch author's real name from GitHub
+    // Calculate word count and reading time
+    const wordCount = content.split(/\s+/).length;
+    const readingTime = Math.ceil(wordCount / 200); // Average reading speed: 200 words/min
+
+    // Extract first paragraph as article summary
+    const contentWithoutTitle = content.replace(/^#[^\n]*\n/, '');
+    const firstParagraph = contentWithoutTitle.split('\n\n').find(p => p.trim() && !p.startsWith('#')) || '';
+    const articleSummary = firstParagraph.slice(0, 300);
+
+    // Fetch author's real name and additional data from GitHub
     let authorName: string | undefined;
+    let authorAvatar: string | undefined;
+    let authorBio: string | undefined;
     try {
       const response = await fetch(`https://api.github.com/users/${username}`, {
         headers: {
@@ -133,35 +144,50 @@ export async function MarkdownView({ content, path, lastUpdated, title, username
       if (response.ok) {
         const data = await response.json();
         authorName = data.name;
+        authorAvatar = `https://github.com/${username}.png`;
+        authorBio = data.bio;
       }
     } catch {
       // Fall back to username if fetch fails
     }
 
-    // Generate JSON-LD structured data for SEO
+    const baseUrl = `https://${username}.madea.blog`;
+    const articleUrl = `${baseUrl}/${path}`;
+
+    // Generate enhanced JSON-LD structured data for SEO
     const jsonLd = {
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
       headline: displayTitle,
+      description: articleSummary,
       datePublished: lastUpdated,
       dateModified: lastUpdated,
+      wordCount: wordCount,
+      timeRequired: `PT${readingTime}M`,
+      url: articleUrl,
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': articleUrl,
+      },
       author: {
         '@type': 'Person',
         name: authorName || username,
         url: `https://github.com/${username}`,
+        ...(authorAvatar && { image: authorAvatar }),
+        ...(authorBio && { description: authorBio }),
       },
       publisher: {
         '@type': 'Organization',
-        name: 'madea.blog',
+        name: authorName || username,
+        url: baseUrl,
         logo: {
           '@type': 'ImageObject',
-          url: 'https://madea.blog/logo.png',
+          url: authorAvatar || `https://github.com/${username}.png`,
         },
       },
-      mainEntityOfPage: {
-        '@type': 'WebPage',
-        '@id': typeof window !== 'undefined' ? window.location.href : '',
-      },
+      image: authorAvatar || `https://github.com/${username}.png`,
+      inLanguage: 'en-US',
+      isAccessibleForFree: true,
     };
 
     return (

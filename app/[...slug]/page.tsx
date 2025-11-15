@@ -43,7 +43,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   try {
     const content = await getFileContent(file, username);
     const title = extractTitle(content, file);
-    const first160Chars = content.slice(0, 160);
+    const lastUpdated = await getLastUpdated(username, file);
+
+    // Extract better description
+    const contentWithoutTitle = content.replace(/^#[^\n]*\n/, '');
+    const firstParagraph = contentWithoutTitle.split('\n\n').find(p => p.trim() && !p.startsWith('#')) || '';
+    const description = firstParagraph.slice(0, 160) || content.slice(0, 160);
+
+    // Calculate reading time
+    const wordCount = content.split(/\s+/).length;
+    const readingTime = Math.ceil(wordCount / 200);
 
     // Get the current URL for canonical and og:url
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
@@ -53,34 +62,60 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Use author's GitHub avatar as the social image
     const socialImage = `https://github.com/${username}.png?size=1200`;
 
+    // Fetch author name
+    let authorName = username;
+    try {
+      const response = await fetch(`https://api.github.com/users/${username}`, {
+        headers: { Accept: 'application/vnd.github.v3+json' },
+        next: { revalidate: 3600 },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        authorName = data.name || username;
+      }
+    } catch {
+      // Use fallback
+    }
+
     return {
-      title: `${title} - ${username}`,
-      description: `${first160Chars}...`,
+      title: `${title}`,
+      description: description,
+      authors: [{ name: authorName, url: `https://github.com/${username}` }],
+      keywords: title.split(' ').concat(['blog', 'article', username]),
       alternates: {
         canonical: url,
       },
       openGraph: {
         type: 'article',
         url: url,
-        title: `${title} - ${username}`,
-        description: `${first160Chars}...`,
-        siteName: 'madea.blog',
+        title: `${title}`,
+        description: description,
+        siteName: `${authorName}'s Blog`,
+        publishedTime: lastUpdated,
+        modifiedTime: lastUpdated,
+        authors: [authorName],
         images: [
           {
             url: socialImage,
             width: 1200,
             height: 1200,
-            alt: username,
+            alt: authorName,
           },
         ],
       },
       twitter: {
         card: "summary_large_image",
-        title: `${title} - ${username}`,
-        description: `${first160Chars}...`,
+        title: `${title}`,
+        description: description,
         images: [socialImage],
         creator: `@${username}`,
         site: '@madeablog',
+      },
+      other: {
+        'article:published_time': lastUpdated,
+        'article:modified_time': lastUpdated,
+        'article:author': authorName,
+        'reading_time': `${readingTime} min read`,
       },
     };
   } catch {
