@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=https://pond.audio/yapi/schema
+
+# http://jamierpond.localtest.me:3001/og?title=SEO%20Tips&author=John%20Doe&username=johndoe&date=2025-11-14
+
+url: http://jamierpond.localtest.me:3001
+path: /og
+method: GET
+
+query:
+  title: "Something Weird AF"
+  author: "Steve Jobs"
+  username: "steve"
+  date: "2025-11-14"
