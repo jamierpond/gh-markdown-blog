@@ -4,6 +4,8 @@ import { ArticleNotFound, getFileContent, getLastUpdated, getUsername, extractTi
 import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
 
+export const dynamic = 'force-dynamic';
+
 interface Params {
   // tied to name of the folder in the file system
   slug: string[];

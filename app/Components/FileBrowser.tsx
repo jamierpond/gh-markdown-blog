@@ -54,52 +54,62 @@ export default async function FileBrowser({ username }: { username: string }) {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <main className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <Link href={`https://github.com/${repo}`} className="text-4xl font-bold text-slate-800 dark:text-slate-100 mb-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-            <h1>{username}&apos;s Blog</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-black dark:via-gray-950 dark:to-black">
+      {/* Animated gradient orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 dark:bg-purple-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 dark:bg-blue-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300 dark:bg-pink-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse" style={{animationDelay: '4s'}}></div>
+      </div>
+
+      <main className="relative z-10 max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <Link href={`https://github.com/${repo}`} className="group inline-block">
+            <h1 className="text-5xl sm:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-300 dark:to-white mb-4 transition-all duration-300 group-hover:scale-105">
+              {username}
+            </h1>
           </Link>
+          <p className="text-lg text-gray-600 dark:text-gray-400 font-light">Thoughts, stories and ideas</p>
         </div>
 
-        <div className="max-h-[70vh] overflow-y-auto pr-2 pb-4 rounded-lg">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filesWithTitles.map((file: FileWithTitle) => (
-              <Link
-                key={file.sha}
-                href={`/${file.path}`}
-                className="bg-white dark:bg-slate-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col cursor-pointer"
-              >
-                <div className="p-6 flex-grow">
-                  <div className="flex items-start mb-4">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                      <svg className="h-5 w-5 text-blue-600 dark:text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <h2 className="ml-3 text-xl font-semibold text-slate-700 dark:text-slate-200 line-clamp-2">
-                      {file.title}
-                    </h2>
-                  </div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mb-4 line-clamp-3">
-                    {file.path}
-                  </p>
+        {/* Articles Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filesWithTitles.map((file: FileWithTitle) => (
+            <Link
+              key={file.sha}
+              href={`/${file.path}`}
+              className="group relative bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-800/50 overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/20 hover:border-gray-300 dark:hover:border-gray-700"
+            >
+              {/* Gradient overlay on hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-pink-500/0 to-blue-500/0 group-hover:from-purple-500/5 group-hover:via-pink-500/5 group-hover:to-blue-500/5 transition-all duration-300"></div>
+
+              <div className="relative p-8">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 dark:group-hover:from-purple-400 dark:group-hover:to-pink-400 transition-all duration-300">
+                  {file.title}
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-500 mb-6 line-clamp-1">
+                  {file.path}
+                </p>
+
+                {/* Read more indicator */}
+                <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
+                  <span>Read article</span>
+                  <svg className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
                 </div>
-                <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 px-6 py-4">
-                  <span className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center font-medium">
-                    Read article
-                    <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </main>
-      <footer className="py-6 text-center text-slate-500 dark:text-slate-400 text-sm">
-        <p>© {new Date().getFullYear()} {username}</p>
+
+      {/* Footer */}
+      <footer className="relative z-10 mt-24 pb-12 text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-500">
+          © {new Date().getFullYear()} {username}
+        </p>
       </footer>
     </div>
   );

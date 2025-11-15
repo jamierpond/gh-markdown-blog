@@ -2,6 +2,8 @@ import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
 import { ArticleNotFound, getFileContent, getLastUpdated, getUsername, extractTitle } from "@/app/shared";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({ params }: PageProps) {
   const username = await getUsername();
 
