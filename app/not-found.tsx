@@ -1,3 +1,4 @@
+import Link from "next/link";
 import PageLayout from "./Components/PageLayout";
 
 export default function NotFound() {
