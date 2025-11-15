@@ -66,6 +66,30 @@ export async function getFileContent(file: string, username: string) {
   return decodedContent;
 }
 
+// Extract a descriptive summary from markdown content
+export function extractDescription(content: string): string {
+  const contentWithoutTitle = content.replace(/^#[^\n]*\n/, '');
+  const firstParagraph = contentWithoutTitle.split('\n\n').find(p => p.trim() && !p.startsWith('#')) || '';
+  let description = firstParagraph.slice(0, 300).trim();
+
+  // If description is too short, try to get more content
+  if (description.length < 100) {
+    const secondParagraph = contentWithoutTitle.split('\n\n').filter(p => p.trim() && !p.startsWith('#'))[1] || '';
+    description = (firstParagraph + ' ' + secondParagraph).slice(0, 300).trim();
+  }
+
+  // Truncate at sentence boundary if possible, aim for ~155 chars
+  if (description.length > 155) {
+    const sentenceEnd = description.slice(0, 155).lastIndexOf('.');
+    if (sentenceEnd > 100) {
+      description = description.slice(0, sentenceEnd + 1);
+    } else {
+      description = description.slice(0, 155) + '...';
+    }
+  }
+  return description;
+}
+
 // Extract title from markdown content if first line starts with "# "
 // Falls back to formatted filename if no title found
 export function extractTitle(content: string, filepath: string): string {

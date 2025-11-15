@@ -1,5 +1,5 @@
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { getFileContent, getLastUpdated, getUsername, extractTitle, getGithubUser } from "@/app/shared";
+import { getFileContent, getLastUpdated, getUsername, extractTitle, getGithubUser, extractDescription } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -48,26 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const title = extractTitle(content, file);
     const lastUpdated = await getLastUpdated(username, file);
 
-    // Extract better description - aim for 155-160 characters
-    const contentWithoutTitle = content.replace(/^#[^\n]*\n/, '');
-    const firstParagraph = contentWithoutTitle.split('\n\n').find(p => p.trim() && !p.startsWith('#')) || '';
-    let description = firstParagraph.slice(0, 300).trim();
-
-    // If description is too short, try to get more content
-    if (description.length < 100) {
-      const secondParagraph = contentWithoutTitle.split('\n\n').filter(p => p.trim() && !p.startsWith('#'))[1] || '';
-      description = (firstParagraph + ' ' + secondParagraph).slice(0, 300).trim();
-    }
-
-    // Truncate at sentence boundary if possible, aim for ~155 chars
-    if (description.length > 155) {
-      const sentenceEnd = description.slice(0, 155).lastIndexOf('.');
-      if (sentenceEnd > 100) {
-        description = description.slice(0, sentenceEnd + 1);
-      } else {
-        description = description.slice(0, 155) + '...';
-      }
-    }
+    const description = extractDescription(content);
 
     // Calculate reading time
     const wordCount = content.split(/\s+/).length;

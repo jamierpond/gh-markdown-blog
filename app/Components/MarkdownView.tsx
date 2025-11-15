@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Markdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
-import { getGithubUser } from "@/app/shared";
+import { extractDescription, getGithubUser } from "@/app/shared";
 
 export interface GithubResponse {
   content: string;
@@ -118,39 +118,24 @@ function View({ content, lastUpdated, title, username, authorName }: { content: 
 }
 
 export async function MarkdownView({ content, path, lastUpdated, title, username }: { content: string, path: string, lastUpdated: string, title?: string, username: string }) {
-    // Use provided title or extract from content
-    const displayTitle = title || content.split('\n')[0]?.trim().startsWith('# ')
-      ? content.split('\n')[0].substring(2).trim()
-      : path.replace(/\.(md|mdx)$/, '').replace(/[-_]/g, ' ').split('/').pop() || path;
+
 
     // Calculate word count and reading time
     const wordCount = content.split(/\s+/).length;
     const readingTime = Math.ceil(wordCount / 200); // Average reading speed: 200 words/min
 
-    // Extract first paragraph as article summary
-    const contentWithoutTitle = content.replace(/^#[^\n]*\n/, '');
-    const firstParagraph = contentWithoutTitle.split('\n\n').find(p => p.trim() && !p.startsWith('#')) || '';
-    const articleSummary = firstParagraph.slice(0, 300);
+    const articleSummary = extractDescription(content);
 
     // Fetch author's real name and additional data from GitHub
-    let authorName: string | undefined;
+        let authorName: string | undefined;
     let authorAvatar: string | undefined;
     let authorBio: string | undefined;
-    try {
-      const response = await fetch(`https://api.github.com/users/${username}`, {
-        headers: {
-          Accept: 'application/vnd.github.v3+json',
-        },
-        next: { revalidate: 86400 }, // Cache for 1 day
-      });
-      if (response.ok) {
-        const data = await response.json();
-        authorName = data.name;
-        authorAvatar = `https://github.com/${username}.png`;
-        authorBio = data.bio;
-      }
-    } catch {
-      // Fall back to username if fetch fails
+
+    const userData = await getGithubUser(username);
+    if (userData) {
+      authorName = userData.name;
+      authorAvatar = `https://github.com/${username}.png`;
+      authorBio = userData.bio;
     }
 
     const baseUrl = `https://${username}.madea.blog`;
@@ -160,7 +145,7 @@ export async function MarkdownView({ content, path, lastUpdated, title, username
     const jsonLd = {
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
-      headline: displayTitle,
+      headline: title,
       description: articleSummary,
       datePublished: lastUpdated,
       dateModified: lastUpdated,
@@ -212,7 +197,7 @@ export async function MarkdownView({ content, path, lastUpdated, title, username
               <span className="font-medium">Back</span>
             </Link>
 
-            <View content={content} lastUpdated={lastUpdated} title={displayTitle} username={username} authorName={authorName} />
+            <View content={content} lastUpdated={lastUpdated} title={title as string} username={username} authorName={authorName} />
           </div>
         </PageLayout>
       </>

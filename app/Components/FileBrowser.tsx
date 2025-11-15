@@ -1,5 +1,6 @@
 import { getFromGithub, getDefaultBranch, getRepoPath, getFileContent, extractTitle, getLastUpdated } from '@/app/shared';
 import PageLayout from "./PageLayout";
+import Link from 'next/link';
 
 export interface FileItem {
   path: string;
