@@ -94,7 +94,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     // Create dynamic OG image URL
-    const ogImageUrl = `${baseUrl}/og?title=${encodeURIComponent(title)}&author=${encodeURIComponent(authorName)}&username=${encodeURIComponent(username)}&date=${encodeURIComponent(lastUpdated)}`;
+    const ogImageUrl = `${baseUrl}/og/article?title=${encodeURIComponent(title)}&author=${encodeURIComponent(authorName)}&username=${encodeURIComponent(username)}&date=${encodeURIComponent(lastUpdated)}`;
 
     // Create rich, descriptive title with context (aim for 50-60 chars)
     const pageTitle = `${title} | ${authorName}'s Blog`;

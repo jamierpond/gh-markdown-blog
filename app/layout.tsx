@@ -44,12 +44,21 @@ export async function generateMetadata(): Promise<Metadata> {
         title: "madea.blog - Turn Your GitHub Repo Into a Beautiful Blog",
         description: "Transform your GitHub markdown files into a beautiful, fast blog. Zero configuration required.",
         siteName: "madea.blog",
+        images: [
+          {
+            url: "https://madea.blog/og/madea-home",
+            width: 1200,
+            height: 630,
+            alt: "madea.blog - Turn your GitHub markdown into a beautiful blog",
+          },
+        ],
       },
       twitter: {
         card: "summary_large_image",
         title: "madea.blog - Turn Your GitHub Repo Into a Beautiful Blog",
         description: "Transform your GitHub markdown files into a beautiful, fast blog. Zero configuration required.",
         site: "@madeablog",
+        images: ["https://madea.blog/og/madea-home"],
       },
       verification: {
         google: process.env.GOOGLE_SITE_VERIFICATION,
@@ -76,6 +85,9 @@ export async function generateMetadata(): Promise<Metadata> {
       const avatar = `https://github.com/${username}.png?size=1200`;
       const location = userData.location;
       const twitterUsername = userData.twitter_username;
+
+      // Create dynamic OG image URL for user homepage
+      const ogImageUrl = `${baseUrl}/og/user-home?name=${encodeURIComponent(name)}&username=${encodeURIComponent(username)}&bio=${encodeURIComponent(bio)}&avatar=${encodeURIComponent(avatar)}`;
 
       return {
         metadataBase: new URL(baseUrl),
@@ -113,10 +125,10 @@ export async function generateMetadata(): Promise<Metadata> {
           siteName: `${name}'s Blog`,
           images: [
             {
-              url: avatar,
+              url: ogImageUrl,
               width: 1200,
-              height: 1200,
-              alt: name,
+              height: 630,
+              alt: `${name}'s Blog`,
             },
           ],
         },
@@ -124,7 +136,7 @@ export async function generateMetadata(): Promise<Metadata> {
           card: "summary_large_image",
           title: `${name}'s Blog`,
           description: bio,
-          images: [avatar],
+          images: [ogImageUrl],
           creator: twitterUsername ? `@${twitterUsername}` : `@${username}`,
           site: "@madeablog",
         },
