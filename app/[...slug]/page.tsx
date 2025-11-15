@@ -42,19 +42,43 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const content = await getFileContent(file, username);
   const title = extractTitle(content, file);
   const first160Chars = content.slice(0, 160);
+
+  // Get the current URL for canonical and og:url
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+  const baseUrl = `${protocol}://${username}.madea.blog`;
+  const url = `${baseUrl}/${file}`;
+
+  // Use author's GitHub avatar as the social image
+  const socialImage = `https://github.com/${username}.png?size=1200`;
+
   return {
     title: `${title} - ${username}`,
     description: `${first160Chars}...`,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
+      type: 'article',
+      url: url,
       title: `${title} - ${username}`,
       description: `${first160Chars}...`,
-      images: ["https://pond.audio/pup.jpg"],
+      siteName: 'madea.blog',
+      images: [
+        {
+          url: socialImage,
+          width: 1200,
+          height: 1200,
+          alt: username,
+        },
+      ],
     },
     twitter: {
+      card: "summary_large_image",
       title: `${title} - ${username}`,
       description: `${first160Chars}...`,
-      card: "summary",
-      images: ["https://pond.audio/pup.jpg"],
+      images: [socialImage],
+      creator: `@${username}`,
+      site: '@madeablog',
     },
   };
 }

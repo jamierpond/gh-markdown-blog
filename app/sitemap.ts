@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getUsername, getRepoPath, getFromGithub, getDefaultBranch } from '@/app/shared';
+import { getUsername, getRepoPath, getFromGithub, getDefaultBranch, getLastUpdated } from '@/app/shared';
 import { headers } from 'next/headers';
 
 interface FileItem {
@@ -62,11 +62,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     ];
 
-    // Add each blog post
-    markdownFiles.forEach((file: FileItem) => {
+    // Fetch last updated dates for all blog posts in parallel
+    const filesWithDates = await Promise.all(
+      markdownFiles.map(async (file: FileItem) => {
+        try {
+          const lastUpdated = await getLastUpdated(username, file.path);
+          return {
+            path: file.path,
+            lastModified: new Date(lastUpdated),
+          };
+        } catch {
+          return {
+            path: file.path,
+            lastModified: new Date(),
+          };
+        }
+      })
+    );
+
+    // Add each blog post with accurate last modified date
+    filesWithDates.forEach((file) => {
       sitemapEntries.push({
         url: `${baseUrl}/${file.path}`,
-        lastModified: new Date(),
+        lastModified: file.lastModified,
         changeFrequency: 'weekly',
         priority: 0.8,
       });
