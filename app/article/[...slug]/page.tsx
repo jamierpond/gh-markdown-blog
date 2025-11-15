@@ -1,6 +1,6 @@
 import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { ArticleNotFound, getFileContent, getLastUpdated, getUsername } from "@/app/shared";
+import { ArticleNotFound, getFileContent, getLastUpdated, getUsername, extractTitle } from "@/app/shared";
 
 export default async function Page({ params }: PageProps) {
   const username = await getUsername();
@@ -19,7 +19,8 @@ export default async function Page({ params }: PageProps) {
   try {
     const content = await getFileContent(file, username);
     const lastUpdated = await getLastUpdated(username, file);
-    return <MarkdownView content={content} path={file} username={username} lastUpdated={lastUpdated} />;
+    const title = extractTitle(content, file);
+    return <MarkdownView content={content} path={file} username={username} lastUpdated={lastUpdated} title={title} />;
   } catch (error) {
     console.error("Failed to load", error);
     return <ArticleNotFound />;

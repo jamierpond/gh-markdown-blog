@@ -66,6 +66,25 @@ export async function getFileContent(file: string, username: string) {
   return decodedContent;
 }
 
+// Extract title from markdown content if first line starts with "# "
+// Falls back to formatted filename if no title found
+export function extractTitle(content: string, filepath: string): string {
+  const lines = content.split('\n');
+  const firstLine = lines[0]?.trim();
+
+  if (firstLine && firstLine.startsWith('# ')) {
+    // Remove the "# " prefix and return the title
+    return firstLine.substring(2).trim();
+  }
+
+  // Fallback: format the filename
+  return filepath
+    .replace(/\.(md|mdx)$/, '')
+    .replace(/[-_]/g, ' ')
+    .split('/')
+    .pop() || filepath;
+}
+
 
 export async function getDefaultBranch(username: string) {
   const repo = await getRepoPath(username);

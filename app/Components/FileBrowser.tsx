@@ -1,10 +1,14 @@
-import { getFromGithub, getDefaultBranch, getRepoPath } from '@/app/shared';
+import { getFromGithub, getDefaultBranch, getRepoPath, getFileContent, extractTitle } from '@/app/shared';
 import Link from 'next/link';
 
 export interface FileItem {
   path: string;
   sha: string;
   url: string;
+}
+
+interface FileWithTitle extends FileItem {
+  title: string;
 }
 
 export default async function FileBrowser({ username }: { username: string }) {
@@ -30,15 +34,24 @@ export default async function FileBrowser({ username }: { username: string }) {
     return <div className="flex items-center justify-center min-h-screen">No articles found</div>;
   }
 
-  // Format file path to display as title
-  const formatTitle = (path: string): string => {
-    // Remove file extension and replace hyphens/underscores with spaces
-    return path
-      .replace(/\.(md|mdx)$/, '')
-      .replace(/[-_]/g, ' ')
-      .split('/')
-      .pop() || path;
-  };
+  // Fetch content for each file and extract title
+  const filesWithTitles: FileWithTitle[] = await Promise.all(
+    markdownFiles.map(async (file: FileItem) => {
+      try {
+        const content = await getFileContent(file.path, username);
+        const title = extractTitle(content, file.path);
+        return { ...file, title };
+      } catch (error) {
+        // If we can't fetch the file, fall back to formatted filename
+        const title = file.path
+          .replace(/\.(md|mdx)$/, '')
+          .replace(/[-_]/g, ' ')
+          .split('/')
+          .pop() || file.path;
+        return { ...file, title };
+      }
+    })
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
@@ -51,10 +64,11 @@ export default async function FileBrowser({ username }: { username: string }) {
 
         <div className="max-h-[70vh] overflow-y-auto pr-2 pb-4 rounded-lg">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {markdownFiles.map((file: FileItem) => (
-              <div
+            {filesWithTitles.map((file: FileWithTitle) => (
+              <Link
                 key={file.sha}
-                className="bg-white dark:bg-slate-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col"
+                href={`/${file.path}`}
+                className="bg-white dark:bg-slate-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col cursor-pointer"
               >
                 <div className="p-6 flex-grow">
                   <div className="flex items-start mb-4">
@@ -64,7 +78,7 @@ export default async function FileBrowser({ username }: { username: string }) {
                       </svg>
                     </div>
                     <h2 className="ml-3 text-xl font-semibold text-slate-700 dark:text-slate-200 line-clamp-2">
-                      {formatTitle(file.path)}
+                      {file.title}
                     </h2>
                   </div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm mb-4 line-clamp-3">
@@ -72,17 +86,14 @@ export default async function FileBrowser({ username }: { username: string }) {
                   </p>
                 </div>
                 <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 px-6 py-4">
-                  <Link
-                    href={`/${file.path}`}
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center font-medium"
-                  >
+                  <span className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center font-medium">
                     Read article
                     <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
-                  </Link>
+                  </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

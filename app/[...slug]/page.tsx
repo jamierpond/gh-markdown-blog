@@ -1,6 +1,6 @@
 import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { ArticleNotFound, getFileContent, getLastUpdated, getUsername, getRepoPath } from "@/app/shared";
+import { ArticleNotFound, getFileContent, getLastUpdated, getUsername, getRepoPath, extractTitle } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
 
@@ -39,17 +39,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const content = await getFileContent(file, username);
+  const title = extractTitle(content, file);
   const first160Chars = content.slice(0, 160);
   return {
-    title: `${username} - ${file || "Blog"}`,
+    title: `${title} - ${username}`,
     description: `${first160Chars}...`,
     openGraph: {
-      title: `${username} - ${file || "Blog"}`,
+      title: `${title} - ${username}`,
       description: `${first160Chars}...`,
       images: ["https://pond.audio/pup.jpg"],
     },
     twitter: {
-      title: `${username} - ${file || "Blog"}`,
+      title: `${title} - ${username}`,
       description: `${first160Chars}...`,
       card: "summary",
       images: ["https://pond.audio/pup.jpg"],
@@ -73,7 +74,8 @@ export default async function Page({ params }: PageProps) {
   try {
     const content = await getFileContent(file, username);
     const lastUpdated = await getLastUpdated(username, file);
-    return <MarkdownView content={content} username={username} path={file} lastUpdated={lastUpdated} />;
+    const title = extractTitle(content, file);
+    return <MarkdownView content={content} username={username} path={file} lastUpdated={lastUpdated} title={title} />;
   } catch (error) {
     console.error("Failed to load", error);
     return <ArticleNotFound />;

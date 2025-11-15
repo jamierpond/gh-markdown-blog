@@ -9,11 +9,11 @@ export interface GithubResponse {
   path: string;
 }
 
-function View({ content, path, lastUpdated }: { path: string, content: string, lastUpdated: string }) {
+function View({ content, path, lastUpdated, title }: { path: string, content: string, lastUpdated: string, title: string }) {
   return (
     <div className="flex flex-col gap-[24px] p-6 sm:p-8 max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-lg shadow-md">
       <header className="border-b border-gray-200 dark:border-gray-700 pb-4">
-        <h2 className="text-[36px] font-bold text-gray-900 dark:text-white">{path}</h2>
+        <h2 className="text-[36px] font-bold text-gray-900 dark:text-white">{title}</h2>
         <div className="flex items-center mt-2 text-gray-500 dark:text-gray-400">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -97,7 +97,12 @@ function View({ content, path, lastUpdated }: { path: string, content: string, l
   );
 }
 
-export function MarkdownView({ content, username, path, lastUpdated }: { content: string, path: string, username: string, lastUpdated: string }) {
+export function MarkdownView({ content, username, path, lastUpdated, title }: { content: string, path: string, username: string, lastUpdated: string, title?: string }) {
+    // Use provided title or extract from content
+    const displayTitle = title || content.split('\n')[0]?.trim().startsWith('# ')
+      ? content.split('\n')[0].substring(2).trim()
+      : path.replace(/\.(md|mdx)$/, '').replace(/[-_]/g, ' ').split('/').pop() || path;
+
     return (
       <div className="min-h-screen py-12 px-4 sm:px-6 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-5xl mx-auto">
@@ -112,7 +117,7 @@ export function MarkdownView({ content, username, path, lastUpdated }: { content
               Back to Home
             </Link>
           </div>
-          <View content={content} path={path} lastUpdated={lastUpdated} />
+          <View content={content} path={path} lastUpdated={lastUpdated} title={displayTitle} />
         </div>
       </div>
     );
