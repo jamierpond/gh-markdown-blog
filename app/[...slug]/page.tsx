@@ -1,8 +1,9 @@
 import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { ArticleNotFound, getFileContent, getLastUpdated, getUsername, extractTitle } from "@/app/shared";
+import { getFileContent, getLastUpdated, getUsername, extractTitle } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
@@ -39,55 +40,63 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const content = await getFileContent(file, username);
-  const title = extractTitle(content, file);
-  const first160Chars = content.slice(0, 160);
+  try {
+    const content = await getFileContent(file, username);
+    const title = extractTitle(content, file);
+    const first160Chars = content.slice(0, 160);
 
-  // Get the current URL for canonical and og:url
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const baseUrl = `${protocol}://${username}.madea.blog`;
-  const url = `${baseUrl}/${file}`;
+    // Get the current URL for canonical and og:url
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${username}.madea.blog`;
+    const url = `${baseUrl}/${file}`;
 
-  // Use author's GitHub avatar as the social image
-  const socialImage = `https://github.com/${username}.png?size=1200`;
+    // Use author's GitHub avatar as the social image
+    const socialImage = `https://github.com/${username}.png?size=1200`;
 
-  return {
-    title: `${title} - ${username}`,
-    description: `${first160Chars}...`,
-    alternates: {
-      canonical: url,
-    },
-    openGraph: {
-      type: 'article',
-      url: url,
+    return {
       title: `${title} - ${username}`,
       description: `${first160Chars}...`,
-      siteName: 'madea.blog',
-      images: [
-        {
-          url: socialImage,
-          width: 1200,
-          height: 1200,
-          alt: username,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${title} - ${username}`,
-      description: `${first160Chars}...`,
-      images: [socialImage],
-      creator: `@${username}`,
-      site: '@madeablog',
-    },
-  };
+      alternates: {
+        canonical: url,
+      },
+      openGraph: {
+        type: 'article',
+        url: url,
+        title: `${title} - ${username}`,
+        description: `${first160Chars}...`,
+        siteName: 'madea.blog',
+        images: [
+          {
+            url: socialImage,
+            width: 1200,
+            height: 1200,
+            alt: username,
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${title} - ${username}`,
+        description: `${first160Chars}...`,
+        images: [socialImage],
+        creator: `@${username}`,
+        site: '@madeablog',
+      },
+    };
+  } catch {
+    // If file doesn't exist, return basic metadata
+    return {
+      title: "Page Not Found",
+      description: "The page you're looking for doesn't exist.",
+    };
+  }
 }
 
 export default async function Page({ params }: PageProps) {
   const username = await getUsername();
 
   if (!params || !username) {
-    return <ArticleNotFound />;
+    notFound();
   }
 
   const { file } = await parseParams(params);
@@ -101,8 +110,7 @@ export default async function Page({ params }: PageProps) {
     const lastUpdated = await getLastUpdated(username, file);
     const title = extractTitle(content, file);
     return <MarkdownView content={content} path={file} lastUpdated={lastUpdated} title={title} username={username} />;
-  } catch (error) {
-    console.error("Failed to load", error);
-    return <ArticleNotFound />;
+  } catch {
+    notFound();
   }
 }

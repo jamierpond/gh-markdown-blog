@@ -1,6 +1,7 @@
 import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { ArticleNotFound, getFileContent, getLastUpdated, getUsername, extractTitle } from "@/app/shared";
+import { getFileContent, getLastUpdated, getUsername, extractTitle } from "@/app/shared";
+import { notFound } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
@@ -8,13 +9,13 @@ export default async function Page({ params }: PageProps) {
   const username = await getUsername();
 
   if (!params || !username) {
-    return <ArticleNotFound />;
+    notFound();
   }
 
   const p = await params;
   const slug = p.slug as string[];
   if (!slug) {
-    return <div>Invalid slug</div>;
+    notFound();
   }
   const file = slug.join("/");
 
@@ -23,8 +24,7 @@ export default async function Page({ params }: PageProps) {
     const lastUpdated = await getLastUpdated(username, file);
     const title = extractTitle(content, file);
     return <MarkdownView content={content} path={file} lastUpdated={lastUpdated} title={title} username={username} />;
-  } catch (error) {
-    console.error("Failed to load", error);
-    return <ArticleNotFound />;
+  } catch {
+    notFound();
   }
 }
