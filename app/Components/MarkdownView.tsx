@@ -9,18 +9,39 @@ export interface GithubResponse {
   path: string;
 }
 
-function View({ content, lastUpdated, title }: { content: string, lastUpdated: string, title: string }) {
+function View({ content, lastUpdated, title, username, authorName }: { content: string, lastUpdated: string, title: string, username: string, authorName?: string }) {
   return (
     <article className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-3xl border border-gray-200/50 dark:border-gray-800/50 overflow-hidden shadow-xl">
       <header className="px-8 sm:px-12 pt-12 pb-8 border-b border-gray-200/50 dark:border-gray-800/50">
-        <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-300 dark:to-white mb-6 leading-tight">
+        <div className="flex items-center gap-3 mb-6">
+          <img
+            src={`https://github.com/${username}.png`}
+            alt={username}
+            className="w-12 h-12 rounded-full border-2 border-gray-200 dark:border-gray-700"
+          />
+          <div>
+            <div className="font-semibold text-gray-900 dark:text-white">
+              {authorName || username}
+            </div>
+            <a
+              href={`https://github.com/${username}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-gray-500 dark:text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+            >
+              @{username}
+            </a>
+          </div>
+        </div>
+
+        <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-300 dark:to-white mb-4 leading-tight">
           {title}
         </h1>
         <div className="flex items-center text-sm text-gray-500 dark:text-gray-500">
           <span>Updated {new Date(lastUpdated).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
         </div>
       </header>
-      <div className="px-8 sm:px-12 py-12 prose prose-lg dark:prose-invert max-w-none">
+      <div className="px-4 sm:px-12 py-8 prose prose-lg dark:prose-invert max-w-none">
         <Markdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeHighlight]}
@@ -94,11 +115,28 @@ function View({ content, lastUpdated, title }: { content: string, lastUpdated: s
   );
 }
 
-export function MarkdownView({ content, path, lastUpdated, title }: { content: string, path: string, lastUpdated: string, title?: string }) {
+export async function MarkdownView({ content, path, lastUpdated, title, username }: { content: string, path: string, lastUpdated: string, title?: string, username: string }) {
     // Use provided title or extract from content
     const displayTitle = title || content.split('\n')[0]?.trim().startsWith('# ')
       ? content.split('\n')[0].substring(2).trim()
       : path.replace(/\.(md|mdx)$/, '').replace(/[-_]/g, ' ').split('/').pop() || path;
+
+    // Fetch author's real name from GitHub
+    let authorName: string | undefined;
+    try {
+      const response = await fetch(`https://api.github.com/users/${username}`, {
+        headers: {
+          Accept: 'application/vnd.github.v3+json',
+        },
+        next: { revalidate: 86400 }, // Cache for 1 day
+      });
+      if (response.ok) {
+        const data = await response.json();
+        authorName = data.name;
+      }
+    } catch {
+      // Fall back to username if fetch fails
+    }
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-black dark:via-gray-950 dark:to-black">
@@ -118,7 +156,7 @@ export function MarkdownView({ content, path, lastUpdated, title }: { content: s
             <span className="font-medium">Back</span>
           </Link>
 
-          <View content={content} lastUpdated={lastUpdated} title={displayTitle} />
+          <View content={content} lastUpdated={lastUpdated} title={displayTitle} username={username} authorName={authorName} />
         </div>
       </div>
     );

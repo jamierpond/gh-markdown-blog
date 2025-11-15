@@ -22,7 +22,7 @@ export default async function Page({ params }: PageProps) {
     const content = await getFileContent(file, username);
     const lastUpdated = await getLastUpdated(username, file);
     const title = extractTitle(content, file);
-    return <MarkdownView content={content} path={file} lastUpdated={lastUpdated} title={title} />;
+    return <MarkdownView content={content} path={file} lastUpdated={lastUpdated} title={title} username={username} />;
   } catch (error) {
     console.error("Failed to load", error);
     return <ArticleNotFound />;
