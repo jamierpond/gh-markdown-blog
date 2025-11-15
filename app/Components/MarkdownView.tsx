@@ -11,77 +11,74 @@ export interface GithubResponse {
 
 function View({ content, lastUpdated, title }: { content: string, lastUpdated: string, title: string }) {
   return (
-    <div className="flex flex-col gap-[24px] p-6 sm:p-8 max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-lg shadow-md">
-      <header className="border-b border-gray-200 dark:border-gray-700 pb-4">
-        <h2 className="text-[36px] font-bold text-gray-900 dark:text-white">{title}</h2>
-        <div className="flex items-center mt-2 text-gray-500 dark:text-gray-400">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <span className="text-sm">Markdown Article</span>
-          <span className="mx-2 text-gray-400">•</span>
-          <span className="text-sm">Last updated: {new Date(lastUpdated).toLocaleDateString()}</span>
+    <article className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-3xl border border-gray-200/50 dark:border-gray-800/50 overflow-hidden shadow-xl">
+      <header className="px-8 sm:px-12 pt-12 pb-8 border-b border-gray-200/50 dark:border-gray-800/50">
+        <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-300 dark:to-white mb-6 leading-tight">
+          {title}
+        </h1>
+        <div className="flex items-center text-sm text-gray-500 dark:text-gray-500">
+          <span>Updated {new Date(lastUpdated).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
         </div>
       </header>
-      <div className="prose prose-lg dark:prose-invert max-w-none">
+      <div className="px-8 sm:px-12 py-12 prose prose-lg dark:prose-invert max-w-none">
         <Markdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeHighlight]}
           components={{
-            h1: ({ ...props }) => <h1 className="text-[32px] font-bold mt-10 mb-6 text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2" {...props} />,
-            h2: ({ ...props }) => <h2 className="text-[28px] font-bold mt-8 mb-4 text-gray-800 dark:text-gray-100" {...props} />,
-            h3: ({ ...props }) => <h3 className="text-[24px] font-semibold mt-6 mb-3 text-gray-800 dark:text-gray-200" {...props} />,
-            h4: ({ ...props }) => <h4 className="text-[20px] font-medium mt-5 mb-2 text-gray-700 dark:text-gray-300" {...props} />,
+            h1: ({ ...props }) => <h1 className="text-3xl font-bold mt-12 mb-6 text-gray-900 dark:text-white" {...props} />,
+            h2: ({ ...props }) => <h2 className="text-2xl font-bold mt-10 mb-4 text-gray-900 dark:text-white" {...props} />,
+            h3: ({ ...props }) => <h3 className="text-xl font-semibold mt-8 mb-3 text-gray-900 dark:text-white" {...props} />,
+            h4: ({ ...props }) => <h4 className="text-lg font-medium mt-6 mb-2 text-gray-800 dark:text-gray-200" {...props} />,
 
-            p: ({ ...props }) => <p className="text-[18px] my-4 leading-relaxed text-gray-700 dark:text-gray-300" {...props} />,
+            p: ({ ...props }) => <p className="text-lg my-5 leading-relaxed text-gray-700 dark:text-gray-300" {...props} />,
 
-            a: ({ ...props }) => <a className="text-blue-500 hover:underline transition-colors duration-200" {...props} />,
+            a: ({ ...props }) => <a className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 underline underline-offset-2 transition-colors" {...props} />,
 
             code: ({ className, children, ...props }) => (
-              <code className={`${className} bg-gray-100 dark:bg-gray-800 text-pink-600 dark:text-pink-400 rounded px-1.5 py-0.5 font-mono text-[0.9em]`} {...props}>
+              <code className={`${className} bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded px-1.5 py-0.5 font-mono text-sm`} {...props}>
                 {children}
               </code>
             ),
 
             pre: ({ ...props }) => (
-              <pre className="bg-gray-50 dark:bg-gray-900 rounded-lg p-5 my-6 overflow-x-auto font-mono text-sm border border-gray-200 dark:border-gray-700 shadow-sm" {...props} />
+              <pre className="bg-gray-900 dark:bg-black rounded-xl p-6 my-8 overflow-x-auto font-mono text-sm border border-gray-700 dark:border-gray-800 shadow-lg" {...props} />
             ),
 
             blockquote: ({ ...props }) => (
-              <blockquote className="border-l-4 border-blue-500 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/30 pl-5 py-2 pr-3 my-6 text-gray-700 dark:text-gray-300 italic rounded-r" {...props} />
+              <blockquote className="border-l-4 border-purple-500 dark:border-purple-400 bg-purple-50/50 dark:bg-purple-900/10 pl-6 py-4 pr-4 my-8 text-gray-700 dark:text-gray-300 italic rounded-r-lg" {...props} />
             ),
 
-            ul: ({ ...props }) => <ul className="list-disc pl-8 my-5 space-y-2 text-gray-700 dark:text-gray-300" {...props} />,
-            ol: ({ ...props }) => <ol className="list-decimal pl-8 my-5 space-y-2 text-gray-700 dark:text-gray-300" {...props} />,
-            li: ({ ...props }) => <li className="text-[18px] leading-relaxed" {...props} />,
+            ul: ({ ...props }) => <ul className="list-disc pl-6 my-6 space-y-3 text-gray-700 dark:text-gray-300 marker:text-purple-500" {...props} />,
+            ol: ({ ...props }) => <ol className="list-decimal pl-6 my-6 space-y-3 text-gray-700 dark:text-gray-300 marker:text-purple-500" {...props} />,
+            li: ({ ...props }) => <li className="text-lg leading-relaxed" {...props} />,
 
             img: ({ ...props }) => (
-              <div className="flex justify-center my-8">
-                <img className="max-w-full h-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700" {...props} />
+              <div className="flex justify-center my-10">
+                <img className="max-w-full h-auto rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800" {...props} alt="" />
               </div>
             ),
 
             table: ({ ...props }) => (
-              <div className="overflow-x-auto my-8 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700" {...props} />
+              <div className="overflow-x-auto my-10 rounded-xl border border-gray-200 dark:border-gray-800 shadow-lg">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800" {...props} />
               </div>
             ),
-            thead: ({ ...props }) => <thead className="bg-gray-50 dark:bg-gray-900" {...props} />,
-            tbody: ({ ...props }) => <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800" {...props} />,
-            tr: ({ ...props }) => <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors" {...props} />,
-            th: ({ ...props }) => <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" {...props} />,
-            td: ({ ...props }) => <td className="px-6 py-4 text-[16px] text-gray-700 dark:text-gray-300" {...props} />,
+            thead: ({ ...props }) => <thead className="bg-gray-100 dark:bg-gray-900" {...props} />,
+            tbody: ({ ...props }) => <tbody className="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-950" {...props} />,
+            tr: ({ ...props }) => <tr className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors" {...props} />,
+            th: ({ ...props }) => <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider" {...props} />,
+            td: ({ ...props }) => <td className="px-6 py-4 text-base text-gray-700 dark:text-gray-300" {...props} />,
 
-            hr: ({ ...props }) => <hr className="my-10 border-t border-gray-200 dark:border-gray-700" {...props} />,
+            hr: ({ ...props }) => <hr className="my-12 border-t border-gray-300 dark:border-gray-700" {...props} />,
 
             strong: ({ ...props }) => <strong className="font-bold text-gray-900 dark:text-white" {...props} />,
             em: ({ ...props }) => <em className="italic text-gray-800 dark:text-gray-200" {...props} />,
 
-            sup: ({ ...props }) => <sup className="text-sm text-blue-500 font-bold align-super" {...props} />,
+            sup: ({ ...props }) => <sup className="text-sm text-purple-600 dark:text-purple-400 font-bold align-super" {...props} />,
             section: ({ className, ...props }) => {
               if (className === "footnotes") {
                 return (
-                  <section className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-700" {...props}>
+                  <section className="mt-12 pt-8 border-t border-gray-300 dark:border-gray-700" {...props}>
                     {props.children}
                   </section>
                 );
@@ -93,7 +90,7 @@ function View({ content, lastUpdated, title }: { content: string, lastUpdated: s
           {content}
         </Markdown>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -104,19 +101,23 @@ export function MarkdownView({ content, path, lastUpdated, title }: { content: s
       : path.replace(/\.(md|mdx)$/, '').replace(/[-_]/g, ' ').split('/').pop() || path;
 
     return (
-      <div className="min-h-screen py-12 px-4 sm:px-6 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center mb-8">
-            <Link
-              href="/"
-              className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-              </svg>
-              Back to Home
-            </Link>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-black dark:via-gray-950 dark:to-black">
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 dark:bg-purple-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse"></div>
+          <div className="absolute top-1/3 -left-40 w-80 h-80 bg-blue-300 dark:bg-blue-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse" style={{animationDelay: '2s'}}></div>
+        </div>
+
+        <div className="relative z-10 max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+          <Link
+            href="/"
+            className="group inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors mb-12"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+            </svg>
+            <span className="font-medium">Back</span>
+          </Link>
+
           <View content={content} lastUpdated={lastUpdated} title={displayTitle} />
         </div>
       </div>

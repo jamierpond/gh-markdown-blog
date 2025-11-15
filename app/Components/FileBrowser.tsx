@@ -70,7 +70,7 @@ export default async function FileBrowser({ username }: { username: string }) {
               {username}
             </h1>
           </Link>
-          <p className="text-lg text-gray-600 dark:text-gray-400 font-light">Thoughts, stories and ideas</p>
+          <p className="text-lg text-gray-600 dark:text-gray-400 font-light">Vist on GitHub</p>
         </div>
 
         {/* Articles Grid */}
