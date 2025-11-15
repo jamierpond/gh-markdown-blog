@@ -1,3 +1,4 @@
+import OgBackground from '../OgBackground';
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
@@ -16,54 +17,7 @@ export async function GET(request: Request) {
 
   return new ImageResponse(
     (
-      <div
-        style={{
-          height: '100%',
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'linear-gradient(to bottom right, #000000, #0a0a0f, #000000)',
-          fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          position: 'relative',
-        }}
-      >
-        {/* Gradient orbs */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '-100px',
-            right: '-100px',
-            width: '400px',
-            height: '400px',
-            background: 'radial-gradient(circle, rgba(88, 28, 135, 0.5) 0%, transparent 60%)',
-            borderRadius: '50%',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-100px',
-            left: '-100px',
-            width: '400px',
-            height: '400px',
-            background: 'radial-gradient(circle, rgba(30, 58, 138, 0.5) 0%, transparent 60%)',
-            borderRadius: '50%',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            right: '100px',
-            width: '350px',
-            height: '350px',
-            background: 'radial-gradient(circle, rgba(131, 24, 67, 0.4) 0%, transparent 60%)',
-            borderRadius: '50%',
-          }}
-        />
-
+      <OgBackground>
         {/* Content container */}
         <div
           style={{
@@ -156,7 +110,7 @@ export async function GET(request: Request) {
             {username}.madea.blog
           </div>
         </div>
-      </div>
+      </OgBackground>
     ),
     {
       width: 1200,
