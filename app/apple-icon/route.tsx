@@ -3,13 +3,6 @@ import { getUsername } from '../shared';
 
 export const runtime = 'edge';
 
-export const size = {
-  width: 180,
-  height: 180,
-};
-
-export const contentType = 'image/png';
-
 export async function GET() {
   const username = await getUsername();
 
@@ -65,7 +58,8 @@ export async function GET() {
       </div>
     ),
     {
-      ...size,
+      width: 180,
+      height: 180,
       fonts: [
         {
           name: 'Inter',
