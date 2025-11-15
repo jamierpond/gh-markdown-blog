@@ -119,7 +119,7 @@ export default async function FileBrowser({ username }: { username: string }) {
           </Link>
 
           <p className="text-lg text-gray-600 dark:text-gray-400 font-light">
-            Hosted with ❤️ on madea.blog
+            Hosted with ❤️ on<a href="https://madea.blog" target="_blank" rel="noopener noreferrer" className="ml-1 text-purple-600 dark:text-purple-400 font-medium underline hover:no-underline">madea.blog</a>
           </p>
         </div>
 
