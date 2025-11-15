@@ -20,7 +20,7 @@ export default async function FileBrowser({ username }: { username: string }) {
     branch = await getDefaultBranch(username);
     files = await getFromGithub(`https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`);
     tree = files.tree;
-  } catch (error) {
+  } catch {
     // Repository doesn't exist - show friendly message
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-black dark:via-gray-950 dark:to-black flex items-center justify-center px-4">
@@ -99,6 +99,11 @@ export default async function FileBrowser({ username }: { username: string }) {
       }
     })
   );
+
+  // Sort by newest first (most recent lastUpdated at the top)
+  filesWithTitles.sort((a, b) => {
+    return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-black dark:via-gray-950 dark:to-black">

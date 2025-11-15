@@ -4,20 +4,25 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
 
-  // Extract subdomain from hostname
-  // Expected format: {username}.domain.com
-  const parts = hostname.split('.');
+  // Remove port if present
+  const hostnameWithoutPort = hostname.split(':')[0];
 
-  // For localhost development, you might have: username.localhost:3000
-  // For production: username.madea.blog
+  // Split hostname into parts
+  const parts = hostnameWithoutPort.split('.');
+
   let username = '';
 
-  if (parts.length >= 2) {
-    // Get the first part as username
+  // Only extract username if there are 3+ parts (subdomain.domain.tld)
+  // Examples:
+  // - "madea.blog" = 2 parts = no subdomain (root domain)
+  // - "username.madea.blog" = 3 parts = username is subdomain
+  // - "localtest.me" = 2 parts = no subdomain
+  // - "username.localtest.me" = 3 parts = username is subdomain
+  if (parts.length >= 3) {
     username = parts[0];
 
-    // Filter out common prefixes that aren't usernames
-    if (username === 'www' || username === 'localhost' || parts.length < 2) {
+    // Filter out www
+    if (username === 'www') {
       username = '';
     }
   }
