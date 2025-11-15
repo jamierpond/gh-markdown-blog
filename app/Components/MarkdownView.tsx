@@ -9,7 +9,7 @@ export interface GithubResponse {
   path: string;
 }
 
-function View({ content, path, lastUpdated, title }: { path: string, content: string, lastUpdated: string, title: string }) {
+function View({ content, lastUpdated, title }: { content: string, lastUpdated: string, title: string }) {
   return (
     <div className="flex flex-col gap-[24px] p-6 sm:p-8 max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-lg shadow-md">
       <header className="border-b border-gray-200 dark:border-gray-700 pb-4">
@@ -97,7 +97,7 @@ function View({ content, path, lastUpdated, title }: { path: string, content: st
   );
 }
 
-export function MarkdownView({ content, username, path, lastUpdated, title }: { content: string, path: string, username: string, lastUpdated: string, title?: string }) {
+export function MarkdownView({ content, path, lastUpdated, title }: { content: string, path: string, lastUpdated: string, title?: string }) {
     // Use provided title or extract from content
     const displayTitle = title || content.split('\n')[0]?.trim().startsWith('# ')
       ? content.split('\n')[0].substring(2).trim()
@@ -117,7 +117,7 @@ export function MarkdownView({ content, username, path, lastUpdated, title }: { 
               Back to Home
             </Link>
           </div>
-          <View content={content} path={path} lastUpdated={lastUpdated} title={displayTitle} />
+          <View content={content} lastUpdated={lastUpdated} title={displayTitle} />
         </div>
       </div>
     );

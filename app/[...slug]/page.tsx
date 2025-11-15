@@ -1,6 +1,6 @@
 import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { ArticleNotFound, getFileContent, getLastUpdated, getUsername, getRepoPath, extractTitle } from "@/app/shared";
+import { ArticleNotFound, getFileContent, getLastUpdated, getUsername, extractTitle } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
 
@@ -29,7 +29,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const { file } = await parseParams(params);
-  const repo = await getRepoPath(username);
 
   if (!file) {
     return {
@@ -75,7 +74,7 @@ export default async function Page({ params }: PageProps) {
     const content = await getFileContent(file, username);
     const lastUpdated = await getLastUpdated(username, file);
     const title = extractTitle(content, file);
-    return <MarkdownView content={content} username={username} path={file} lastUpdated={lastUpdated} title={title} />;
+    return <MarkdownView content={content} path={file} lastUpdated={lastUpdated} title={title} />;
   } catch (error) {
     console.error("Failed to load", error);
     return <ArticleNotFound />;

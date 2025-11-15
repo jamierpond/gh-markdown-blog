@@ -41,7 +41,7 @@ export default async function FileBrowser({ username }: { username: string }) {
         const content = await getFileContent(file.path, username);
         const title = extractTitle(content, file.path);
         return { ...file, title };
-      } catch (error) {
+      } catch {
         // If we can't fetch the file, fall back to formatted filename
         const title = file.path
           .replace(/\.(md|mdx)$/, '')
