@@ -175,7 +175,7 @@ export async function GET(request: Request) {
               color: '#c084fc',
             }}
           >
-            madea.blog
+            {username}.madea.blog
           </div>
         </div>
       </div>
