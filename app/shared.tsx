@@ -105,6 +105,21 @@ export async function getLastUpdated(username: string, file: string) {
 }
 
 
+import { cache } from 'react';
+
+export const getGithubUser = cache(async (username: string) => {
+  try {
+    const response = await fetch(`https://api.github.com/users/${username}`, {
+      headers: { Accept: 'application/vnd.github.v3+json' },
+      next: { revalidate: 3600 }, // Cache for 1 hour
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  }
+});
+
 export function ArticleNotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">

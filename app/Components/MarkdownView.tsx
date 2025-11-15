@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Markdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
-import remarkGfm from "remark-gfm";
+import { getGithubUser } from "@/app/shared";
 
 export interface GithubResponse {
   content: string;
@@ -200,12 +200,7 @@ export async function MarkdownView({ content, path, lastUpdated, title, username
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-black dark:via-gray-950 dark:to-black">
-          <div className="fixed inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 dark:bg-purple-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse"></div>
-            <div className="absolute top-1/3 -left-40 w-80 h-80 bg-blue-300 dark:bg-blue-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse" style={{animationDelay: '2s'}}></div>
-          </div>
-
+        <PageLayout>
           <div className="relative z-10 max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
             <Link
               href="/"
@@ -219,7 +214,7 @@ export async function MarkdownView({ content, path, lastUpdated, title, username
 
             <View content={content} lastUpdated={lastUpdated} title={displayTitle} username={username} authorName={authorName} />
           </div>
-        </div>
+        </PageLayout>
       </>
     );
 }

@@ -1,5 +1,5 @@
 import { getFromGithub, getDefaultBranch, getRepoPath, getFileContent, extractTitle, getLastUpdated } from '@/app/shared';
-import Link from 'next/link';
+import PageLayout from "./PageLayout";
 
 export interface FileItem {
   path: string;
@@ -23,12 +23,7 @@ export default async function FileBrowser({ username }: { username: string }) {
   } catch {
     // Repository doesn't exist - show friendly message
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-black dark:via-gray-950 dark:to-black flex items-center justify-center px-4">
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 dark:bg-purple-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 dark:bg-blue-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        </div>
-
+      <PageLayout>
         <div className="relative z-10 text-center max-w-2xl">
           <div className="mb-8">
             <div className="text-7xl mb-6">📝</div>
@@ -57,7 +52,7 @@ export default async function FileBrowser({ username }: { username: string }) {
             </a>
           </div>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
@@ -106,14 +101,7 @@ export default async function FileBrowser({ username }: { username: string }) {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-black dark:via-gray-950 dark:to-black">
-      {/* Animated gradient orbs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 dark:bg-purple-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 dark:bg-blue-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300 dark:bg-pink-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '4s' }}></div>
-      </div>
-
+    <PageLayout>
       <main className="relative z-10 max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
@@ -144,7 +132,7 @@ export default async function FileBrowser({ username }: { username: string }) {
                   {file.title}
                 </h2>
                 <p className="text-xs text-gray-400 dark:text-gray-600 mb-4">
-                  {new Date(file.lastUpdated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  {new Date(file.lastUpdated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', 'year': 'numeric' })}
                 </p>
 
                 {/* Read more indicator */}
@@ -166,7 +154,7 @@ export default async function FileBrowser({ username }: { username: string }) {
           © {new Date().getFullYear()} {username}
         </p>
       </footer>
-    </div>
+    </PageLayout>
   );
 }
 

@@ -1,5 +1,5 @@
 import FileBrowser from "@/app/Components/FileBrowser";
-import { getUsername } from "@/app/shared";
+import PageLayout from "./Components/PageLayout";
 
 export const dynamic = 'force-dynamic';
 
@@ -8,13 +8,7 @@ export default async function Page() {
 
   if (!username) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-black dark:via-gray-950 dark:to-black">
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 dark:bg-purple-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 dark:bg-blue-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse" style={{animationDelay: '2s'}}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300 dark:bg-pink-900 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse" style={{animationDelay: '4s'}}></div>
-        </div>
-
+      <PageLayout>
         <div className="relative z-10 max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
           {/* Hero */}
           <div className="text-center mb-20">
@@ -96,7 +90,7 @@ export default async function Page() {
             </a>
           </div>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 

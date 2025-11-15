@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { getUsername } from "./shared";
+import { getGithubUser, getUsername } from "./shared";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -70,16 +70,9 @@ export async function generateMetadata(): Promise<Metadata> {
   // Personalized metadata for user subdomains
   const baseUrl = `https://${username}.madea.blog`;
 
-  try {
-    const response = await fetch(`https://api.github.com/users/${username}`, {
-      headers: {
-        Accept: 'application/vnd.github.v3+json',
-      },
-      next: { revalidate: 3600 }, // Cache for 1 hour
-    });
+  const userData = await getGithubUser(username);
 
-    if (response.ok) {
-      const userData = await response.json();
+    if (userData) {
       const name = userData.name || username;
       const bio = userData.bio || `${name}'s blog powered by madea.blog`;
       const avatar = `https://github.com/${username}.png?size=1200`;
@@ -144,9 +137,7 @@ export async function generateMetadata(): Promise<Metadata> {
         category: "technology",
       };
     }
-  } catch {
-    // Fallback if GitHub API fails
-  }
+  
 
   // Fallback metadata if API call fails
   return {
@@ -203,16 +194,8 @@ export default async function RootLayout({
 
   // Add JSON-LD structured data for user profiles
   if (username) {
-    try {
-      const response = await fetch(`https://api.github.com/users/${username}`, {
-        headers: {
-          Accept: 'application/vnd.github.v3+json',
-        },
-        next: { revalidate: 3600 },
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
+    const userData = await getGithubUser(username);
+      if (userData) {
         const name = userData.name || username;
         const bio = userData.bio;
         const avatar = `https://github.com/${username}.png`;
@@ -238,9 +221,7 @@ export default async function RootLayout({
           } : undefined,
         };
       }
-    } catch {
-      // Ignore errors
-    }
+    
   }
 
   return (

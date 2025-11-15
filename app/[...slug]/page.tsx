@@ -1,5 +1,5 @@
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { getFileContent, getLastUpdated, getUsername, extractTitle } from "@/app/shared";
+import { getFileContent, getLastUpdated, getUsername, extractTitle, getGithubUser } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -80,17 +80,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     // Fetch author name
     let authorName = username;
-    try {
-      const response = await fetch(`https://api.github.com/users/${username}`, {
-        headers: { Accept: 'application/vnd.github.v3+json' },
-        next: { revalidate: 3600 },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        authorName = data.name || username;
-      }
-    } catch {
-      // Use fallback
+    const userData = await getGithubUser(username);
+    if (userData) {
+      authorName = userData.name || username;
     }
 
     // Create dynamic OG image URL
