@@ -1,4 +1,3 @@
-import { PageProps } from "@/.next/types/app/layout";
 import { MarkdownView } from "@/app/Components/MarkdownView";
 import { getFileContent, getLastUpdated, getUsername, extractTitle } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
@@ -10,6 +9,10 @@ export const dynamic = 'force-dynamic';
 interface Params {
   // tied to name of the folder in the file system
   slug: string[];
+}
+
+interface PageProps {
+  params: Promise<Params>;
 }
 
 async function parseParams(params: Promise<Params>) {
