@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Markdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
+import remarkGfm from "remark-gfm";
 import PageLayout from "./PageLayout";
 import { extractDescription, getGithubUser } from "@/app/shared";
 
