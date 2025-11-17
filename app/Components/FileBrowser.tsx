@@ -1,6 +1,7 @@
-import { getFromGithub, getDefaultBranch, getRepoPath, getFileContent, extractTitle, getLastUpdated } from '@/app/shared';
+import { getFromGithub, getDefaultBranch, getRepoPath, getFileContent, extractTitle, getLastUpdated, getGithubUser } from '@/app/shared';
 import PageLayout from "./PageLayout";
 import Link from 'next/link';
+import Image from 'next/image';
 
 export interface FileItem {
   path: string;
@@ -15,6 +16,9 @@ interface FileWithTitle extends FileItem {
 
 export default async function FileBrowser({ username }: { username: string }) {
   const repo = await getRepoPath(username);
+
+  // Fetch GitHub user data for profile picture and name
+  const githubUser = await getGithubUser(username);
 
   let branch, files, tree;
   try {
@@ -106,11 +110,33 @@ export default async function FileBrowser({ username }: { username: string }) {
       <main className="relative z-10 max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
+          {/* Profile Picture */}
+          {githubUser?.avatar_url && (
+            <div className="mb-6 flex justify-center">
+              <Link href={`https://github.com/${username}`} className="group">
+                <Image
+                  src={githubUser.avatar_url}
+                  alt={githubUser.name || username}
+                  width={120}
+                  height={120}
+                  className="rounded-full border-4 border-gray-200 dark:border-gray-700 transition-all duration-300 group-hover:scale-105 group-hover:border-purple-500 dark:group-hover:border-purple-400 shadow-lg"
+                  priority
+                />
+              </Link>
+            </div>
+          )}
+
           <Link href={`https://github.com/${repo}`} className="group inline-block">
             <h1 className="text-5xl sm:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-300 dark:to-white mb-4 transition-all duration-300 group-hover:scale-105">
-              {username}
+              {githubUser?.name || username}
             </h1>
           </Link>
+
+          {githubUser?.bio && (
+            <p className="text-xl text-gray-700 dark:text-gray-300 mb-4 max-w-2xl mx-auto">
+              {githubUser.bio}
+            </p>
+          )}
 
           <p className="text-lg text-gray-600 dark:text-gray-400 font-light">
             Hosted with ❤️ on<a href="https://madea.blog" target="_blank" rel="noopener noreferrer" className="ml-1 text-purple-600 dark:text-purple-400 font-medium underline hover:no-underline">madea.blog</a>
@@ -152,7 +178,7 @@ export default async function FileBrowser({ username }: { username: string }) {
       {/* Footer */}
       <footer className="relative z-10 mt-24 pb-12 text-center">
         <p className="text-sm text-gray-500 dark:text-gray-500">
-          © {new Date().getFullYear()} {username}
+          © {new Date().getFullYear()} {githubUser?.name || username}
         </p>
       </footer>
     </PageLayout>
