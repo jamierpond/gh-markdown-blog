@@ -117,15 +117,34 @@ export async function getDefaultBranch(username: string) {
 }
 
 
-export async function getLastUpdated(username: string, file: string) {
+export interface CommitInfo {
+  date: string;
+  authorName: string;
+  authorEmail: string;
+  authorUsername?: string;
+  authorAvatarUrl?: string;
+}
+
+export async function getLastUpdated(username: string, file: string): Promise<string> {
+  const info = await getLastCommitInfo(username, file);
+  return info.date;
+}
+
+export async function getLastCommitInfo(username: string, file: string): Promise<CommitInfo> {
   const repo = await getRepoPath(username);
   const commits = await getFromGithub(`https://api.github.com/repos/${repo}/commits?path=${file}&per_page=1`);
   if (!commits || commits.length === 0) {
     throw new Error("No commits found for this file");
   }
   const lastCommit = commits[0];
-  const lastUpdated = lastCommit.commit.author.date;
-  return lastUpdated;
+
+  return {
+    date: lastCommit.commit.author.date,
+    authorName: lastCommit.commit.author.name,
+    authorEmail: lastCommit.commit.author.email,
+    authorUsername: lastCommit.author?.login,
+    authorAvatarUrl: lastCommit.author?.avatar_url,
+  };
 }
 
 

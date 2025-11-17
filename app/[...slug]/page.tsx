@@ -1,5 +1,5 @@
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { getFileContent, getLastUpdated, getUsername, extractTitle, getGithubUser, extractDescription } from "@/app/shared";
+import { getFileContent, getLastUpdated, getUsername, extractTitle, getGithubUser, extractDescription, getLastCommitInfo } from "@/app/shared";
 import FileBrowser from "@/app/Components/FileBrowser";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -137,9 +137,9 @@ export default async function Page({ params }: PageProps) {
 
   try {
     const content = await getFileContent(file, username);
-    const lastUpdated = await getLastUpdated(username, file);
+    const commitInfo = await getLastCommitInfo(username, file);
     const title = extractTitle(content, file);
-    return <MarkdownView content={content} path={file} lastUpdated={lastUpdated} title={title} username={username} />;
+    return <MarkdownView content={content} path={file} commitInfo={commitInfo} title={title} username={username} />;
   } catch {
     notFound();
   }

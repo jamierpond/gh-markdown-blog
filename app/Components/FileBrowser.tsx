@@ -1,4 +1,4 @@
-import { getFromGithub, getDefaultBranch, getRepoPath, getFileContent, extractTitle, getLastUpdated, getGithubUser } from '@/app/shared';
+import { getFromGithub, getDefaultBranch, getRepoPath, getFileContent, extractTitle, getLastCommitInfo, getGithubUser, CommitInfo } from '@/app/shared';
 import PageLayout from "./PageLayout";
 import Link from 'next/link';
 import Image from 'next/image';
@@ -11,7 +11,7 @@ export interface FileItem {
 
 interface FileWithTitle extends FileItem {
   title: string;
-  lastUpdated: string;
+  commitInfo: CommitInfo;
 }
 
 export default async function FileBrowser({ username }: { username: string }) {
@@ -78,16 +78,16 @@ export default async function FileBrowser({ username }: { username: string }) {
     return <div className="flex items-center justify-center min-h-screen">No articles found</div>;
   }
 
-  // Fetch content for each file and extract title and last updated
+  // Fetch content for each file and extract title and commit info
   const filesWithTitles: FileWithTitle[] = await Promise.all(
     markdownFiles.map(async (file: FileItem) => {
       try {
-        const [content, lastUpdated] = await Promise.all([
+        const [content, commitInfo] = await Promise.all([
           getFileContent(file.path, username),
-          getLastUpdated(username, file.path)
+          getLastCommitInfo(username, file.path)
         ]);
         const title = extractTitle(content, file.path);
-        return { ...file, title, lastUpdated };
+        return { ...file, title, commitInfo };
       } catch {
         // If we can't fetch the file, fall back to formatted filename
         const title = file.path
@@ -95,14 +95,20 @@ export default async function FileBrowser({ username }: { username: string }) {
           .replace(/[-_]/g, ' ')
           .split('/')
           .pop() || file.path;
-        return { ...file, title, lastUpdated: new Date().toISOString() };
+        const fallbackCommitInfo: CommitInfo = {
+          date: new Date().toISOString(),
+          authorName: username,
+          authorEmail: '',
+          authorUsername: username,
+        };
+        return { ...file, title, commitInfo: fallbackCommitInfo };
       }
     })
   );
 
-  // Sort by newest first (most recent lastUpdated at the top)
+  // Sort by newest first (most recent commit date at the top)
   filesWithTitles.sort((a, b) => {
-    return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
+    return new Date(b.commitInfo.date).getTime() - new Date(a.commitInfo.date).getTime();
   });
 
   return (
@@ -155,12 +161,28 @@ export default async function FileBrowser({ username }: { username: string }) {
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-pink-500/0 to-blue-500/0 group-hover:from-purple-500/5 group-hover:via-pink-500/5 group-hover:to-blue-500/5 transition-all duration-300"></div>
 
               <div className="relative p-8">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 dark:group-hover:from-purple-400 dark:group-hover:to-pink-400 transition-all duration-300">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 dark:group-hover:from-purple-400 dark:group-hover:to-pink-400 transition-all duration-300">
                   {file.title}
                 </h2>
-                <p className="text-xs text-gray-400 dark:text-gray-600 mb-4">
-                  {new Date(file.lastUpdated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', 'year': 'numeric' })}
-                </p>
+
+                {/* Commit author info with avatar and last updated */}
+                <div className="flex items-center gap-3 mb-6">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={file.commitInfo.authorAvatarUrl || `https://github.com/${file.commitInfo.authorUsername || username}.png`}
+                    alt={file.commitInfo.authorName}
+                    width={32}
+                    height={32}
+                    className="w-8 h-8 rounded-full border-2 border-gray-200 dark:border-gray-700"
+                  />
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Updated by{' '}
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {file.commitInfo.authorName}
+                    </span>
+                    {' '}on {new Date(file.commitInfo.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </div>
+                </div>
 
                 {/* Read more indicator */}
                 <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
