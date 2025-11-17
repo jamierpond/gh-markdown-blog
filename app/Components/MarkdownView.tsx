@@ -3,7 +3,6 @@ import Markdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import PageLayout from "./PageLayout";
-import Image from "next/image";
 import { extractDescription, getGithubUser, getDefaultBranch, CommitInfo } from "@/app/shared";
 
 export interface GithubResponse {
@@ -158,13 +157,11 @@ export async function MarkdownView({ content, path, commitInfo, title, username 
     // Fetch author's real name and additional data from GitHub
     let authorName: string | undefined;
     let authorAvatar: string | undefined;
-    let authorBio: string | undefined;
 
     const userData = await getGithubUser(username);
     if (userData) {
       authorName = userData.name;
       authorAvatar = `https://github.com/${username}.png`;
-      authorBio = userData.bio;
     }
 
     const baseUrl = `https://${username}.madea.blog`;
