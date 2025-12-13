@@ -2,7 +2,6 @@
 
 # dependencies
 /node_modules
-**node_modules**
 /.pnp
 .pnp.*
 .yarn/*
@@ -10,8 +9,6 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
-.env.local
 
 # testing
 /coverage
@@ -42,7 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-packages/madea-blog-core/dist
-apps/madea-blog-consumer/.next
-apps/madea-blog-consumer/node_modules
-.env*.local

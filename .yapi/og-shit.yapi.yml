@@ -1,5 +1,4 @@
-# yaml-language-server: $schema=https://pond.audio/yapi/schema
-
+yapi: v1
 # http://jamierpond.localtest.me:3001/og?title=SEO%20Tips&author=John%20Doe&username=johndoe&date=2025-11-14
 
 url: http://jamierpond.localtest.me:3001
