@@ -1,0 +1,5 @@
+{
+  "buildCommand": "pnpm run build:core && pnpm run build:app",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "outputDirectory": "apps/madea-blog-consumer/.next"
+}
