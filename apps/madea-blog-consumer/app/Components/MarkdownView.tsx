@@ -3,16 +3,24 @@ import Markdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import PageLayout from "./PageLayout";
-import { extractDescription, getGithubUser, getDefaultBranch, CommitInfo } from "@/app/shared";
+import type { FileInfo } from 'madea-blog-core';
+import { extractDescription } from 'madea-blog-core';
+import { getGithubUser } from "@/app/shared";
 
-export interface GithubResponse {
-  content: string;
-  encoding: BufferEncoding;
-  path: string;
+interface ViewProps {
+  article: FileInfo;
+  username: string;
+  branch: string;
 }
 
-function View({ content, commitInfo, title, username, path, branch }: { content: string, commitInfo: CommitInfo, title: string, username: string, path: string, branch: string }) {
-  const sourceUrl = `https://github.com/${username}/madea.blog/blob/${branch}/${path}`;
+function View({ article, username, branch }: ViewProps) {
+  const { content, commitInfo, title, path, url } = article;
+
+  // For GitHub, construct the source URL. For local, use the file path directly.
+  const isGitHubUrl = url.startsWith('https://github.com');
+  const sourceUrl = isGitHubUrl
+    ? url
+    : `https://github.com/${username}/madea.blog/blob/${branch}/${path}`;
 
   // Use commit author's avatar if available, otherwise fallback to GitHub username avatar
   const avatarUrl = commitInfo.authorAvatarUrl || `https://github.com/${commitInfo.authorUsername || username}.png`;
@@ -53,7 +61,7 @@ function View({ content, commitInfo, title, username, path, branch }: { content:
             </div>
           </div>
 
-          <span className="text-gray-300 dark:text-gray-700">•</span>
+          <span className="text-gray-300 dark:text-gray-700">|</span>
 
           <a
             href={sourceUrl}
@@ -143,89 +151,92 @@ function View({ content, commitInfo, title, username, path, branch }: { content:
   );
 }
 
-export async function MarkdownView({ content, path, commitInfo, title, username }: { content: string, path: string, commitInfo: CommitInfo, title?: string, username: string }) {
-
-    // Get the default branch for source link
-    const branch = await getDefaultBranch(username);
-
-    // Calculate word count and reading time
-    const wordCount = content.split(/\s+/).length;
-    const readingTime = Math.ceil(wordCount / 200); // Average reading speed: 200 words/min
-
-    const articleSummary = extractDescription(content);
-
-    // Fetch author's real name and additional data from GitHub
-    let authorName: string | undefined;
-    let authorAvatar: string | undefined;
-
-    const userData = await getGithubUser(username);
-    if (userData) {
-      authorName = userData.name;
-      authorAvatar = `https://github.com/${username}.png`;
-    }
-
-    const baseUrl = `https://${username}.madea.blog`;
-    const articleUrl = `${baseUrl}/${path}`;
-
-    // Generate enhanced JSON-LD structured data for SEO
-    const jsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      headline: title,
-      description: articleSummary,
-      datePublished: commitInfo.date,
-      dateModified: commitInfo.date,
-      wordCount: wordCount,
-      timeRequired: `PT${readingTime}M`,
-      url: articleUrl,
-      mainEntityOfPage: {
-        '@type': 'WebPage',
-        '@id': articleUrl,
-      },
-      author: {
-        '@type': 'Person',
-        name: commitInfo.authorName,
-        url: commitInfo.authorUsername ? `https://github.com/${commitInfo.authorUsername}` : undefined,
-        ...(commitInfo.authorAvatarUrl && { image: commitInfo.authorAvatarUrl }),
-      },
-      publisher: {
-        '@type': 'Organization',
-        name: authorName || username,
-        url: baseUrl,
-        logo: {
-          '@type': 'ImageObject',
-          url: authorAvatar || `https://github.com/${username}.png`,
-        },
-      },
-      image: commitInfo.authorAvatarUrl || authorAvatar || `https://github.com/${username}.png`,
-      inLanguage: 'en-US',
-      isAccessibleForFree: true,
-    };
-
-    return (
-      <>
-        {/* JSON-LD structured data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-
-        <PageLayout>
-          <div className="relative z-10 max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-            <Link
-              href="/"
-              className="group inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors mb-12"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-              </svg>
-              <span className="font-medium">Back</span>
-            </Link>
-
-            <View content={content} commitInfo={commitInfo} title={title as string} username={username} path={path} branch={branch} />
-          </div>
-        </PageLayout>
-      </>
-    );
+interface MarkdownViewProps {
+  article: FileInfo;
+  username: string;
+  branch: string;
 }
 
+export async function MarkdownView({ article, username, branch }: MarkdownViewProps) {
+  const { content, commitInfo, title, path } = article;
+
+  // Calculate word count and reading time
+  const wordCount = content.split(/\s+/).length;
+  const readingTime = Math.ceil(wordCount / 200);
+
+  const articleSummary = extractDescription(content);
+
+  // Fetch author's real name and additional data from GitHub
+  let authorName: string | undefined;
+  let authorAvatar: string | undefined;
+
+  const userData = await getGithubUser(username);
+  if (userData) {
+    authorName = userData.name;
+    authorAvatar = `https://github.com/${username}.png`;
+  }
+
+  const baseUrl = `https://${username}.madea.blog`;
+  const articleUrl = `${baseUrl}/${path}`;
+
+  // Generate enhanced JSON-LD structured data for SEO
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: title,
+    description: articleSummary,
+    datePublished: commitInfo.date,
+    dateModified: commitInfo.date,
+    wordCount: wordCount,
+    timeRequired: `PT${readingTime}M`,
+    url: articleUrl,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': articleUrl,
+    },
+    author: {
+      '@type': 'Person',
+      name: commitInfo.authorName,
+      url: commitInfo.authorUsername ? `https://github.com/${commitInfo.authorUsername}` : undefined,
+      ...(commitInfo.authorAvatarUrl && { image: commitInfo.authorAvatarUrl }),
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: authorName || username,
+      url: baseUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: authorAvatar || `https://github.com/${username}.png`,
+      },
+    },
+    image: commitInfo.authorAvatarUrl || authorAvatar || `https://github.com/${username}.png`,
+    inLanguage: 'en-US',
+    isAccessibleForFree: true,
+  };
+
+  return (
+    <>
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      <PageLayout>
+        <div className="relative z-10 max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+          <Link
+            href="/"
+            className="group inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors mb-12"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+            </svg>
+            <span className="font-medium">Back</span>
+          </Link>
+
+          <View article={article} username={username} branch={branch} />
+        </div>
+      </PageLayout>
+    </>
+  );
+}
