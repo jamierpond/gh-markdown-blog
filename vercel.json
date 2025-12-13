@@ -1,8 +1,0 @@
-{
-  "framework": "nextjs",
-  "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm --filter madea-blog-consumer build",
-  "devCommand": "pnpm --filter madea-blog-consumer dev",
-  "outputDirectory": ".next"
-}
-
