@@ -45,13 +45,22 @@ interface GitHubFileContent {
   html_url: string;
 }
 
+// Extended fetch options for Next.js
+interface NextFetchRequestInit extends RequestInit {
+  cache?: RequestCache;
+  next?: {
+    revalidate?: number | false;
+    tags?: string[];
+  };
+}
+
 export class GitHubDataProvider implements DataProvider {
   private readonly username: string;
   private readonly repo: string;
   private readonly token?: string;
   private readonly repoPath: string;
   private cachedBranch?: string;
-  private cachedUser?: GitHubUser | null;
+  private cachedUser: GitHubUser | null | undefined;
 
   constructor(options: GitHubOptions) {
     this.username = options.username;
@@ -65,20 +74,22 @@ export class GitHubDataProvider implements DataProvider {
       throw new Error('GitHub token is required for GitHubDataProvider');
     }
 
-    const res = await fetch(url, {
+    const options: NextFetchRequestInit = {
       headers: {
         Accept: 'application/vnd.github.v3+json',
         Authorization: `Bearer ${this.token}`,
       },
       cache: 'force-cache',
       next: { revalidate: cacheSeconds },
-    });
+    };
+
+    const res = await fetch(url, options as RequestInit);
 
     if (!res.ok) {
       throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
     }
 
-    return res.json();
+    return res.json() as Promise<T>;
   }
 
   private async fetchGitHubUser(username: string): Promise<GitHubUser | null> {
@@ -87,16 +98,19 @@ export class GitHubDataProvider implements DataProvider {
     }
 
     try {
-      const response = await fetch(`https://api.github.com/users/${username}`, {
+      const options: NextFetchRequestInit = {
         headers: { Accept: 'application/vnd.github.v3+json' },
         next: { revalidate: 3600 },
-      });
+      };
+
+      const response = await fetch(`https://api.github.com/users/${username}`, options as RequestInit);
       if (!response.ok) {
         this.cachedUser = null;
         return null;
       }
-      this.cachedUser = await response.json();
-      return this.cachedUser;
+      const userData = await response.json() as GitHubUser;
+      this.cachedUser = userData;
+      return userData;
     } catch {
       this.cachedUser = null;
       return null;
