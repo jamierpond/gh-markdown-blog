@@ -1,6 +1,6 @@
 import { MarkdownView } from "@/app/Components/MarkdownView";
 import { getUsername, getGithubUser } from "@/app/shared";
-import { extractTitle, extractDescription } from 'madea-blog-core';
+import { extractDescription } from 'madea-blog-core';
 import FileBrowser, { NoRepoFound } from "@/app/Components/FileBrowser";
 import { getDataProvider } from "@/app/lib/data-provider-factory";
 import { Metadata } from "next";

@@ -1,6 +1,7 @@
-import FileBrowser from "@/app/Components/FileBrowser";
+import FileBrowser, { NoRepoFound } from "@/app/Components/FileBrowser";
 import PageLayout from "./Components/PageLayout";
 import { getUsername } from "./shared";
+import { getDataProvider } from "./lib/data-provider-factory";
 
 export const dynamic = 'force-dynamic';
 
@@ -95,5 +96,16 @@ export default async function Page() {
     );
   }
 
-  return <FileBrowser username={username} />;
+  // User has a subdomain - show their blog
+  try {
+    const provider = getDataProvider(username);
+    const [articles, sourceInfo] = await Promise.all([
+      provider.getArticleList(),
+      provider.getSourceInfo(),
+    ]);
+
+    return <FileBrowser articles={articles} sourceInfo={sourceInfo} username={username} />;
+  } catch {
+    return <NoRepoFound username={username} />;
+  }
 }
