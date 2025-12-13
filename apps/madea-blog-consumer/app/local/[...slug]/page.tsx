@@ -1,5 +1,6 @@
 import { renderMadeaBlog, extractDescription } from 'madea-blog-core';
 import { createLocalConfig, createDataProvider } from '@/app/lib/madea-config';
+import { getUsername } from '@/app/shared';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import path from 'path';
@@ -24,6 +25,15 @@ async function parseParams(params: Promise<Params>) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  // /local routes should only work on the main domain (no subdomain)
+  const username = await getUsername();
+  if (username) {
+    return {
+      title: 'Not Found',
+      description: 'Page not found',
+    };
+  }
+
   const { file } = await parseParams(params);
 
   if (!file) {
@@ -65,6 +75,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function LocalArticlePage({ params }: PageProps) {
+  // /local routes should only work on the main domain (no subdomain)
+  const username = await getUsername();
+  if (username) {
+    notFound();
+  }
+
   const { file } = await parseParams(params);
 
   if (!file) {
