@@ -1,115 +1,55 @@
-import { getFromGithub, getDefaultBranch, getRepoPath, getFileContent, extractTitle, getLastCommitInfo, getGithubUser, CommitInfo } from '@/app/shared';
+import type { FileInfo, SourceInfo } from 'madea-blog-core';
 import PageLayout from "./PageLayout";
 import Link from 'next/link';
 import Image from 'next/image';
 
-export interface FileItem {
-  path: string;
-  sha: string;
-  url: string;
+interface FileBrowserProps {
+  articles: FileInfo[];
+  sourceInfo: SourceInfo;
+  username: string;
 }
 
-interface FileWithTitle extends FileItem {
-  title: string;
-  commitInfo: CommitInfo;
-}
-
-export default async function FileBrowser({ username }: { username: string }) {
-  const repo = await getRepoPath(username);
-
-  // Fetch GitHub user data for profile picture and name
-  const githubUser = await getGithubUser(username);
-
-  let branch, files, tree;
-  try {
-    branch = await getDefaultBranch(username);
-    files = await getFromGithub(`https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`);
-    tree = files.tree;
-  } catch {
-    // Repository doesn't exist - show friendly message
-    return (
-      <PageLayout>
-        <div className="relative z-10 text-center max-w-2xl">
-          <div className="mb-8">
-            <div className="text-7xl mb-6">📝</div>
-            <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-300 dark:to-white mb-6 leading-tight">
-              {username} hasn&apos;t made a madea.blog yet!
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-              You can get started by pushing markdown to
-            </p>
-          </div>
-
-          <div className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-800/50 p-8">
-            <code className="text-purple-600 dark:text-purple-400 font-mono text-lg block mb-6">
-              {username}/madea.blog
-            </code>
-            <a
-              href={`https://github.com/${username}/madea.blog`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
-            >
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
-              </svg>
-              Create on GitHub
-            </a>
-          </div>
+function NoRepoFound({ username }: { username: string }) {
+  return (
+    <PageLayout>
+      <div className="relative z-10 text-center max-w-2xl mx-auto px-4 py-16">
+        <div className="mb-8">
+          <div className="text-7xl mb-6">📝</div>
+          <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-300 dark:to-white mb-6 leading-tight">
+            {username} hasn&apos;t made a madea.blog yet!
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+            You can get started by pushing markdown to
+          </p>
         </div>
-      </PageLayout>
-    );
-  }
 
-  if (!tree) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="text-xl font-semibold">Failed to load content!</div>
-        <div className="mt-2 text-sm overflow-auto max-w-full">Got: {JSON.stringify(files)}</div>
+        <div className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-800/50 p-8">
+          <code className="text-purple-600 dark:text-purple-400 font-mono text-lg block mb-6">
+            {username}/madea.blog
+          </code>
+          <a
+            href={`https://github.com/${username}/madea.blog`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          >
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+            </svg>
+            Create on GitHub
+          </a>
+        </div>
       </div>
-    );
-  }
-
-  const markdownFiles = files.tree.filter(
-    (file: FileItem) => file.path.endsWith(".md") || file.path.endsWith(".mdx")
+    </PageLayout>
   );
+}
 
-  if (!markdownFiles.length) {
+export { NoRepoFound };
+
+export default function FileBrowser({ articles, sourceInfo, username }: FileBrowserProps) {
+  if (!articles.length) {
     return <div className="flex items-center justify-center min-h-screen">No articles found</div>;
   }
-
-  // Fetch content for each file and extract title and commit info
-  const filesWithTitles: FileWithTitle[] = await Promise.all(
-    markdownFiles.map(async (file: FileItem) => {
-      try {
-        const [content, commitInfo] = await Promise.all([
-          getFileContent(file.path, username),
-          getLastCommitInfo(username, file.path)
-        ]);
-        const title = extractTitle(content, file.path);
-        return { ...file, title, commitInfo };
-      } catch {
-        // If we can't fetch the file, fall back to formatted filename
-        const title = file.path
-          .replace(/\.(md|mdx)$/, '')
-          .replace(/[-_]/g, ' ')
-          .split('/')
-          .pop() || file.path;
-        const fallbackCommitInfo: CommitInfo = {
-          date: new Date().toISOString(),
-          authorName: username,
-          authorEmail: '',
-          authorUsername: username,
-        };
-        return { ...file, title, commitInfo: fallbackCommitInfo };
-      }
-    })
-  );
-
-  // Sort by newest first (most recent commit date at the top)
-  filesWithTitles.sort((a, b) => {
-    return new Date(b.commitInfo.date).getTime() - new Date(a.commitInfo.date).getTime();
-  });
 
   return (
     <PageLayout>
@@ -117,12 +57,12 @@ export default async function FileBrowser({ username }: { username: string }) {
         {/* Header */}
         <div className="text-center mb-16">
           {/* Profile Picture */}
-          {githubUser?.avatar_url && (
+          {sourceInfo.avatarUrl && (
             <div className="mb-6 flex justify-center">
-              <Link href={`https://github.com/${username}`} className="group">
+              <Link href={sourceInfo.sourceUrl} className="group">
                 <Image
-                  src={githubUser.avatar_url}
-                  alt={githubUser.name || username}
+                  src={sourceInfo.avatarUrl}
+                  alt={sourceInfo.name}
                   width={120}
                   height={120}
                   className="rounded-full border-4 border-gray-200 dark:border-gray-700 transition-all duration-300 group-hover:scale-105 group-hover:border-purple-500 dark:group-hover:border-purple-400 shadow-lg"
@@ -132,29 +72,29 @@ export default async function FileBrowser({ username }: { username: string }) {
             </div>
           )}
 
-          <Link href={`https://github.com/${repo}`} className="group inline-block">
+          <Link href={sourceInfo.sourceUrl} className="group inline-block">
             <h1 className="text-5xl sm:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-300 dark:to-white mb-4 transition-all duration-300 group-hover:scale-105">
-              {githubUser?.name || username}
+              {sourceInfo.name}
             </h1>
           </Link>
 
-          {githubUser?.bio && (
+          {sourceInfo.bio && (
             <p className="text-xl text-gray-700 dark:text-gray-300 mb-4 max-w-2xl mx-auto">
-              {githubUser.bio}
+              {sourceInfo.bio}
             </p>
           )}
 
           <p className="text-lg text-gray-600 dark:text-gray-400 font-light">
-            Hosted with ❤️ on<a href="https://madea.blog" target="_blank" rel="noopener noreferrer" className="ml-1 text-purple-600 dark:text-purple-400 font-medium underline hover:no-underline">madea.blog</a>
+            Hosted with love on<a href="https://madea.blog" target="_blank" rel="noopener noreferrer" className="ml-1 text-purple-600 dark:text-purple-400 font-medium underline hover:no-underline">madea.blog</a>
           </p>
         </div>
 
         {/* Articles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filesWithTitles.map((file: FileWithTitle) => (
+          {articles.map((article: FileInfo) => (
             <Link
-              key={file.sha}
-              href={`/${file.path}`}
+              key={article.sha}
+              href={`/${article.path}`}
               className="group relative bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-800/50 overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/20 hover:border-gray-300 dark:hover:border-gray-700"
             >
               {/* Gradient overlay on hover */}
@@ -162,15 +102,15 @@ export default async function FileBrowser({ username }: { username: string }) {
 
               <div className="relative p-8">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 dark:group-hover:from-purple-400 dark:group-hover:to-pink-400 transition-all duration-300">
-                  {file.title}
+                  {article.title}
                 </h2>
 
                 {/* Commit author info with avatar and last updated */}
                 <div className="flex items-center gap-3 mb-6">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={file.commitInfo.authorAvatarUrl || `https://github.com/${file.commitInfo.authorUsername || username}.png`}
-                    alt={file.commitInfo.authorName}
+                    src={article.commitInfo.authorAvatarUrl || `https://github.com/${article.commitInfo.authorUsername || username}.png`}
+                    alt={article.commitInfo.authorName}
                     width={32}
                     height={32}
                     className="w-8 h-8 rounded-full border-2 border-gray-200 dark:border-gray-700"
@@ -178,9 +118,9 @@ export default async function FileBrowser({ username }: { username: string }) {
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     Updated by{' '}
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {file.commitInfo.authorName}
+                      {article.commitInfo.authorName}
                     </span>
-                    {' '}on {new Date(file.commitInfo.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {' '}on {new Date(article.commitInfo.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </div>
                 </div>
 
@@ -200,10 +140,9 @@ export default async function FileBrowser({ username }: { username: string }) {
       {/* Footer */}
       <footer className="relative z-10 mt-24 pb-12 text-center">
         <p className="text-sm text-gray-500 dark:text-gray-500">
-          © {new Date().getFullYear()} {githubUser?.name || username}
+          © {new Date().getFullYear()} {sourceInfo.name}
         </p>
       </footer>
     </PageLayout>
   );
 }
-
