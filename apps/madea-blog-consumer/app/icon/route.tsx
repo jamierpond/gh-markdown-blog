@@ -1,4 +1,4 @@
-import { generateIconResponse } from '../lib/iconUtils';
+import { generateIconResponse } from '../lib/icon-utils';
 import { getUsername } from '../shared';
 
 export const runtime = 'edge';

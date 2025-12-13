@@ -1,6 +1,6 @@
-import FileBrowser from '@/app/Components/FileBrowser';
-import PageLayout from '@/app/Components/PageLayout';
-import { generateAvatarDataUrl } from '@/app/Components/Avatar';
+import FileBrowser from '@/app/components/file-browser';
+import PageLayout from '@/app/components/page-layout';
+import { generateAvatarDataUrl } from '@/app/components/avatar';
 import { createDataProvider } from '@/app/lib/madea-config';
 import { getUsername } from '@/app/shared';
 import { notFound } from 'next/navigation';

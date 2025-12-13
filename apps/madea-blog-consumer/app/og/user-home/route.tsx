@@ -1,4 +1,4 @@
-import OgBackground from '../OgBackground';
+import OgBackground from '../og-background';
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';

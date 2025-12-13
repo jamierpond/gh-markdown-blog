@@ -1,5 +1,5 @@
 import Link from "next/link";
-import PageLayout from "./Components/PageLayout";
+import PageLayout from "./components/page-layout";
 
 export default function NotFound() {
   return (
