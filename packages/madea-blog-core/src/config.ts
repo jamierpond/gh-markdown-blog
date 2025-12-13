@@ -76,19 +76,23 @@ export type RenderedView =
  * Handles all view types internally so user code stays clean.
  *
  * @param result - The result from renderMadeaBlog
- * @param options - Optional handlers for special cases
- * @returns The rendered view element, or null for 404
+ * @param notFound - The notFound function from next/navigation (called on 404)
+ * @returns The rendered view element
  *
  * @example
  * ```tsx
- * const result = await renderMadeaBlog(config, path);
- * return renderPage(result) ?? notFound();
+ * import { notFound } from 'next/navigation';
+ *
+ * export default async function Page() {
+ *   const result = await renderMadeaBlog(config, path);
+ *   return renderPage(result, notFound);
+ * }
  * ```
  */
 export function renderPage(
   result: RenderedView,
-  options?: { onNotFound?: () => never }
-): ReturnType<MadeaView<unknown>> | null {
+  notFound: () => never
+): ReturnType<MadeaView<unknown>> {
   switch (result.type) {
     case 'article':
       return result.View(result.props);
@@ -99,10 +103,7 @@ export function renderPage(
     case 'landing':
       return result.View(result.props);
     case '404':
-      if (options?.onNotFound) {
-        options.onNotFound();
-      }
-      return null;
+      notFound();
   }
 }
 
