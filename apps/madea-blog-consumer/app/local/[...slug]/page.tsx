@@ -1,8 +1,7 @@
-import { MarkdownView } from "@/app/Components/MarkdownView";
-import { LocalFsDataProvider } from 'madea-blog-core/providers/local-fs';
-import { extractDescription } from 'madea-blog-core';
-import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { renderMadeaBlog, extractDescription } from 'madea-blog-core';
+import { createLocalConfig, createDataProvider } from '@/app/lib/madea-config';
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import path from 'path';
 
 export const dynamic = 'force-dynamic';
@@ -17,18 +16,10 @@ interface PageProps {
   params: Promise<Params>;
 }
 
-function getProvider() {
-  return new LocalFsDataProvider({
-    contentDir: LOCAL_CONTENT_DIR,
-    authorName: 'Local Demo',
-    sourceUrl: LOCAL_CONTENT_DIR,
-  });
-}
-
 async function parseParams(params: Promise<Params>) {
   const p = await params;
   const slug = p.slug as string[];
-  const file = slug.join("/");
+  const file = slug.join('/');
   return { file };
 }
 
@@ -37,18 +28,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!file) {
     return {
-      title: "Local Demo",
-      description: "Local filesystem blog demo",
+      title: 'Local Demo',
+      description: 'Local filesystem blog demo',
     };
   }
 
   try {
-    const provider = getProvider();
+    // Use the DI pattern for metadata generation
+    const provider = createDataProvider({
+      username: 'local',
+      useLocalFs: true,
+      localContentDir: LOCAL_CONTENT_DIR,
+    });
     const article = await provider.getArticle(file);
 
     if (!article) {
       return {
-        title: "Article Not Found",
+        title: 'Article Not Found',
         description: "The article you're looking for doesn't exist.",
       };
     }
@@ -62,8 +58,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   } catch {
     return {
-      title: "Error",
-      description: "Could not load article",
+      title: 'Error',
+      description: 'Could not load article',
     };
   }
 }
@@ -75,20 +71,18 @@ export default async function LocalArticlePage({ params }: PageProps) {
     notFound();
   }
 
-  try {
-    const provider = getProvider();
-    const [article, branch] = await Promise.all([
-      provider.getArticle(file),
-      provider.getDefaultBranch(),
-    ]);
+  // Create config with injected dependencies for local mode
+  const config = createLocalConfig(LOCAL_CONTENT_DIR);
 
-    if (!article) {
-      notFound();
-    }
+  // Use the core controller to determine what to render
+  const result = await renderMadeaBlog(config, file, { hasUsername: true });
 
-    return <MarkdownView article={article} username="local" branch={branch} />;
-  } catch (error) {
-    console.error('[local/[...slug]/page.tsx] Error:', error);
+  // Handle 404 case
+  if (result.type === '404') {
     notFound();
   }
+
+  // Render the injected view with its props
+  const { View, props } = result;
+  return <View {...props} />;
 }

@@ -1,10 +1,8 @@
-import { MarkdownView } from "@/app/Components/MarkdownView";
-import { getUsername, getGithubUser } from "@/app/shared";
-import { extractDescription } from 'madea-blog-core';
-import FileBrowser, { NoRepoFound } from "@/app/Components/FileBrowser";
-import { getDataProvider } from "@/app/lib/data-provider-factory";
-import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { renderMadeaBlog, extractDescription } from 'madea-blog-core';
+import { createDefaultConfig, createDataProvider, FIXED_REPO_NAME } from '@/app/lib/madea-config';
+import { getUsername, getGithubUser } from '@/app/shared';
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,18 +17,17 @@ interface PageProps {
 async function parseParams(params: Promise<Params>) {
   const p = await params;
   const slug = p.slug as string[];
-  const file = slug.join("/");
+  const file = slug.join('/');
   return { file };
 }
-
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const username = await getUsername();
 
   if (!params || !username) {
     return {
-      title: "Blogify your GitHub Repo",
-      description: "Blogify your GitHub Repo",
+      title: 'Blogify your GitHub Repo',
+      description: 'Blogify your GitHub Repo',
     };
   }
 
@@ -39,17 +36,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!file) {
     return {
       title: `${username}'s Blog`,
-      description: "Blogify your GitHub Repo",
+      description: 'Blogify your GitHub Repo',
     };
   }
 
   try {
-    const provider = getDataProvider(username);
-    const article = await provider.getArticle(file);
+    // Use the DI pattern for metadata generation too
+    const dataProvider = createDataProvider({ username });
+    const article = await dataProvider.getArticle(file);
 
     if (!article) {
       return {
-        title: "Page Not Found",
+        title: 'Page Not Found',
         description: "The page you're looking for doesn't exist.",
       };
     }
@@ -106,7 +104,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         ],
       },
       twitter: {
-        card: "summary_large_image",
+        card: 'summary_large_image',
         title: pageTitle,
         description: description,
         images: [ogImageUrl],
@@ -117,12 +115,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         'article:published_time': commitInfo.date,
         'article:modified_time': commitInfo.date,
         'article:author': authorName,
-        'reading_time': `${readingTime} min read`,
+        reading_time: `${readingTime} min read`,
       },
     };
   } catch {
     return {
-      title: "Page Not Found",
+      title: 'Page Not Found',
       description: "The page you're looking for doesn't exist.",
     };
   }
@@ -137,35 +135,21 @@ export default async function Page({ params }: PageProps) {
 
   const { file } = await parseParams(params);
 
-  if (!file) {
-    // Homepage - show article list
-    try {
-      const provider = getDataProvider(username);
-      const [articles, sourceInfo] = await Promise.all([
-        provider.getArticleList(),
-        provider.getSourceInfo(),
-      ]);
+  // Create config with injected dependencies
+  const config = createDefaultConfig(username);
 
-      return <FileBrowser articles={articles} sourceInfo={sourceInfo} username={username} />;
-    } catch {
-      return <NoRepoFound username={username} />;
-    }
-  }
+  // Determine path: empty file means root, otherwise article path
+  const path = file || '/';
 
-  // Article page
-  try {
-    const provider = getDataProvider(username);
-    const [article, branch] = await Promise.all([
-      provider.getArticle(file),
-      provider.getDefaultBranch(),
-    ]);
+  // Use the core controller to determine what to render
+  const result = await renderMadeaBlog(config, path, { hasUsername: true });
 
-    if (!article) {
-      notFound();
-    }
-
-    return <MarkdownView article={article} username={username} branch={branch} />;
-  } catch {
+  // Handle 404 case
+  if (result.type === '404') {
     notFound();
   }
+
+  // Render the injected view with its props
+  const { View, props } = result;
+  return <View {...props} />;
 }

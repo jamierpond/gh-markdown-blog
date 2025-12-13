@@ -32,3 +32,33 @@ export interface DataProvider {
   getSourceInfo(): Promise<SourceInfo>;
   getDefaultBranch(): Promise<string>;
 }
+
+// ============================================
+// View Props Contracts
+// These define the props that the core logic
+// will pass to user-provided view components
+// ============================================
+
+/** Props for the article/markdown view component */
+export interface ArticleViewProps {
+  article: FileInfo;
+  username: string;
+  branch: string;
+}
+
+/** Props for the file browser/article list view component */
+export interface FileBrowserViewProps {
+  articles: FileInfo[];
+  sourceInfo: SourceInfo;
+  username: string;
+}
+
+/** Props for the "no repo found" view component */
+export interface NoRepoFoundViewProps {
+  username: string;
+}
+
+/** Props for the landing page view component (shown when no subdomain) */
+export interface LandingViewProps {
+  // Currently no props needed, but defined for future extensibility
+}

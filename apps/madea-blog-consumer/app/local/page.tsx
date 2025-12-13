@@ -1,7 +1,7 @@
-import FileBrowser from "@/app/Components/FileBrowser";
-import PageLayout from "@/app/Components/PageLayout";
-import { generateAvatarDataUrl } from "@/app/Components/Avatar";
-import { LocalFsDataProvider } from 'madea-blog-core/providers/local-fs';
+import FileBrowser from '@/app/Components/FileBrowser';
+import PageLayout from '@/app/Components/PageLayout';
+import { generateAvatarDataUrl } from '@/app/Components/Avatar';
+import { createDataProvider } from '@/app/lib/madea-config';
 import path from 'path';
 
 export const dynamic = 'force-dynamic';
@@ -10,10 +10,11 @@ export const dynamic = 'force-dynamic';
 const LOCAL_CONTENT_DIR = path.join(process.cwd(), 'test');
 
 export default async function LocalPage() {
-  const provider = new LocalFsDataProvider({
-    contentDir: LOCAL_CONTENT_DIR,
-    authorName: 'Local Demo',
-    sourceUrl: LOCAL_CONTENT_DIR,
+  // Use the DI pattern to create the data provider
+  const provider = createDataProvider({
+    username: 'local',
+    useLocalFs: true,
+    localContentDir: LOCAL_CONTENT_DIR,
   });
 
   try {
