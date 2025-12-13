@@ -43,3 +43,4 @@ yarn-error.log*
 next-env.d.ts
 packages/madea-blog-core/dist
 apps/madea-blog-consumer/.next
+apps/madea-blog-consumer/node_modules
