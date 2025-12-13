@@ -64,7 +64,8 @@ export class LocalFsDataProvider implements DataProvider {
           date: latestCommit.date,
           authorName: latestCommit.author_name,
           authorEmail: latestCommit.author_email,
-          authorUsername: latestCommit.author_name,
+          // No GitHub username available from local git - Avatar component will be used
+          authorUsername: undefined,
           authorAvatarUrl: undefined,
         };
       }

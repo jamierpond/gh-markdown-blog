@@ -6,15 +6,20 @@ import PageLayout from "./PageLayout";
 import type { FileInfo } from 'madea-blog-core';
 import { extractDescription } from 'madea-blog-core';
 import { getGithubUser } from "@/app/shared";
+import { Avatar } from './Avatar';
 
-// Generate a fallback avatar URL using UI Avatars service
-function getAvatarUrl(authorName: string, authorAvatarUrl?: string, authorUsername?: string, fallbackUsername?: string): string {
+// Check if a string is a valid GitHub username (no spaces, reasonable format)
+function isValidGitHubUsername(username: string): boolean {
+  return Boolean(username && !username.includes(' ') && /^[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/.test(username));
+}
+
+// Get avatar URL with fallback to generated SVG
+function getAvatarUrl(authorName: string, authorAvatarUrl?: string, authorUsername?: string, fallbackUsername?: string): string | null {
   if (authorAvatarUrl) return authorAvatarUrl;
-  if (authorUsername) return `https://github.com/${authorUsername}.png`;
-  if (fallbackUsername && fallbackUsername !== 'local') return `https://github.com/${fallbackUsername}.png`;
-  // Generate avatar from name initials
-  const encoded = encodeURIComponent(authorName);
-  return `https://ui-avatars.com/api/?name=${encoded}&background=6366f1&color=fff&size=128`;
+  if (authorUsername && isValidGitHubUsername(authorUsername)) return `https://github.com/${authorUsername}.png`;
+  if (fallbackUsername && fallbackUsername !== 'local' && isValidGitHubUsername(fallbackUsername)) return `https://github.com/${fallbackUsername}.png`;
+  // Return null to signal we should use the Avatar component instead
+  return null;
 }
 
 interface ViewProps {
@@ -35,10 +40,11 @@ function View({ article, username, branch }: ViewProps) {
       ? '#' // Don't link to GitHub for local mode
       : `https://github.com/${username}/madea.blog/blob/${branch}/${path}`;
 
-  // Use commit author's avatar if available, otherwise fallback
+  // Use commit author's avatar if available, otherwise null (use Avatar component)
   const avatarUrl = getAvatarUrl(commitInfo.authorName, commitInfo.authorAvatarUrl, commitInfo.authorUsername, username);
   const displayName = commitInfo.authorName;
   const githubUsername = commitInfo.authorUsername || username;
+  const useGeneratedAvatar = avatarUrl === null;
 
   return (
     <article className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-3xl border border-gray-200/50 dark:border-gray-800/50 overflow-hidden shadow-xl">
@@ -50,12 +56,20 @@ function View({ article, username, branch }: ViewProps) {
         <div className="flex items-center gap-4 flex-wrap">
           {/* Author info with avatar */}
           <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={avatarUrl}
-              alt={displayName}
-              className="w-10 h-10 rounded-full border-2 border-gray-200 dark:border-gray-700"
-            />
+            {useGeneratedAvatar ? (
+              <Avatar
+                name={displayName}
+                size={40}
+                className="rounded-full border-2 border-gray-200 dark:border-gray-700"
+              />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="w-10 h-10 rounded-full border-2 border-gray-200 dark:border-gray-700"
+              />
+            )}
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Updated by{' '}
               {commitInfo.authorUsername ? (

@@ -2,15 +2,20 @@ import type { FileInfo, SourceInfo } from 'madea-blog-core';
 import PageLayout from "./PageLayout";
 import Link from 'next/link';
 import Image from 'next/image';
+import { Avatar, generateAvatarDataUrl } from './Avatar';
 
-// Generate a fallback avatar URL using UI Avatars service
-function getAvatarUrl(authorName: string, authorAvatarUrl?: string, authorUsername?: string, fallbackUsername?: string): string {
+// Check if a string is a valid GitHub username (no spaces, reasonable format)
+function isValidGitHubUsername(username: string): boolean {
+  return Boolean(username && !username.includes(' ') && /^[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/.test(username));
+}
+
+// Get avatar URL with fallback to generated SVG
+function getAvatarUrl(authorName: string, authorAvatarUrl?: string, authorUsername?: string, fallbackUsername?: string): string | null {
   if (authorAvatarUrl) return authorAvatarUrl;
-  if (authorUsername) return `https://github.com/${authorUsername}.png`;
-  if (fallbackUsername && fallbackUsername !== 'local') return `https://github.com/${fallbackUsername}.png`;
-  // Generate avatar from name initials
-  const encoded = encodeURIComponent(authorName);
-  return `https://ui-avatars.com/api/?name=${encoded}&background=6366f1&color=fff&size=64`;
+  if (authorUsername && isValidGitHubUsername(authorUsername)) return `https://github.com/${authorUsername}.png`;
+  if (fallbackUsername && fallbackUsername !== 'local' && isValidGitHubUsername(fallbackUsername)) return `https://github.com/${fallbackUsername}.png`;
+  // Return null to signal we should use the Avatar component instead
+  return null;
 }
 
 interface FileBrowserProps {
@@ -104,7 +109,7 @@ export default function FileBrowser({ articles, sourceInfo, username }: FileBrow
           {articles.map((article: FileInfo) => (
             <Link
               key={article.sha}
-              href={`/${article.path}`}
+              href={username === 'local' ? `/local/${article.path}` : `/${article.path}`}
               className="group relative bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-800/50 overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/20 hover:border-gray-300 dark:hover:border-gray-700"
             >
               {/* Gradient overlay on hover */}
@@ -117,14 +122,28 @@ export default function FileBrowser({ articles, sourceInfo, username }: FileBrow
 
                 {/* Commit author info with avatar and last updated */}
                 <div className="flex items-center gap-3 mb-6">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={getAvatarUrl(article.commitInfo.authorName, article.commitInfo.authorAvatarUrl, article.commitInfo.authorUsername, username)}
-                    alt={article.commitInfo.authorName}
-                    width={32}
-                    height={32}
-                    className="w-8 h-8 rounded-full border-2 border-gray-200 dark:border-gray-700"
-                  />
+                  {(() => {
+                    const avatarUrl = getAvatarUrl(article.commitInfo.authorName, article.commitInfo.authorAvatarUrl, article.commitInfo.authorUsername, username);
+                    if (avatarUrl) {
+                      return (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={avatarUrl}
+                          alt={article.commitInfo.authorName}
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 rounded-full border-2 border-gray-200 dark:border-gray-700"
+                        />
+                      );
+                    }
+                    return (
+                      <Avatar
+                        name={article.commitInfo.authorName}
+                        size={32}
+                        className="rounded-full border-2 border-gray-200 dark:border-gray-700"
+                      />
+                    );
+                  })()}
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     Updated by{' '}
                     <span className="font-medium text-gray-900 dark:text-white">

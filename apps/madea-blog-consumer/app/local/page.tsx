@@ -1,5 +1,6 @@
 import FileBrowser from "@/app/Components/FileBrowser";
 import PageLayout from "@/app/Components/PageLayout";
+import { generateAvatarDataUrl } from "@/app/Components/Avatar";
 import { LocalFsDataProvider } from 'madea-blog-core/providers/local-fs';
 import path from 'path';
 
@@ -26,7 +27,7 @@ export default async function LocalPage() {
       ...sourceInfo,
       name: 'Local Filesystem Demo',
       bio: 'This example uses the LocalFsDataProvider with simple-git to read markdown from the local filesystem.',
-      avatarUrl: 'https://ui-avatars.com/api/?name=Local+FS&background=8b5cf6&color=fff&size=256&bold=true',
+      avatarUrl: generateAvatarDataUrl('Local FS', 256),
       sourceUrl: '/local',
     };
 
