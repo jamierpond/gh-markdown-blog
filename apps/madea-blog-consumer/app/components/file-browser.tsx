@@ -1,8 +1,8 @@
 import type { FileInfo, SourceInfo } from 'madea-blog-core';
-import PageLayout from "./PageLayout";
+import PageLayout from "./page-layout";
 import Link from 'next/link';
 import Image from 'next/image';
-import { Avatar, generateAvatarDataUrl } from './Avatar';
+import { Avatar, generateAvatarDataUrl } from './avatar';
 
 // Check if a string is a valid GitHub username (no spaces, reasonable format)
 function isValidGitHubUsername(username: string): boolean {

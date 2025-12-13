@@ -1,4 +1,4 @@
-import PageLayout from "./PageLayout";
+import PageLayout from "./page-layout";
 
 export default function LandingPage() {
   return (
