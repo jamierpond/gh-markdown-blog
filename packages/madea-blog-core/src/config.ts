@@ -7,12 +7,14 @@ import type {
 } from './data-provider.js';
 
 /**
- * A generic type for React components being injected.
- * The component receives props P and returns JSX.Element.
+ * A generic type for view components being injected.
+ * The component receives props P and returns a renderable element.
  * Since the core must be SSR-only and decoupled from React,
- * we use a generic function signature.
+ * we use a generic function signature that returns unknown.
+ * The actual React types are enforced in the consumer app.
  */
-export type MadeaView<P> = (props: P) => JSX.Element;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type MadeaView<P> = (props: P) => any;
 
 /**
  * Configuration object for the madea-blog system.
