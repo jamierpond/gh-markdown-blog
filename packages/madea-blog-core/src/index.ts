@@ -13,7 +13,7 @@ export type {
 
 // Config & Controller
 export type { Config, MadeaView, RenderedView } from './config';
-export { renderMadeaBlog } from './config';
+export { renderMadeaBlog, renderPage } from './config';
 
 // Utilities
 export {

@@ -72,6 +72,41 @@ export type RenderedView =
     };
 
 /**
+ * Renders a RenderedView result to a React element.
+ * Handles all view types internally so user code stays clean.
+ *
+ * @param result - The result from renderMadeaBlog
+ * @param options - Optional handlers for special cases
+ * @returns The rendered view element, or null for 404
+ *
+ * @example
+ * ```tsx
+ * const result = await renderMadeaBlog(config, path);
+ * return renderPage(result) ?? notFound();
+ * ```
+ */
+export function renderPage(
+  result: RenderedView,
+  options?: { onNotFound?: () => never }
+): ReturnType<MadeaView<unknown>> | null {
+  switch (result.type) {
+    case 'article':
+      return result.View(result.props);
+    case 'file-browser':
+      return result.View(result.props);
+    case 'no-repo-found':
+      return result.View(result.props);
+    case 'landing':
+      return result.View(result.props);
+    case '404':
+      if (options?.onNotFound) {
+        options.onNotFound();
+      }
+      return null;
+  }
+}
+
+/**
  * The main server-side controller function.
  * Takes the full config and a path, handles the logic,
  * and returns the appropriate view with its props.
