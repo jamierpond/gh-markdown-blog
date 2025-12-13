@@ -1,10 +1,10 @@
-import { renderMadeaBlog, renderPage } from 'madea-blog-core';
+import { renderMadeaBlogPage } from 'madea-blog-core';
 import { createBlogConfig } from './lib/madea-config';
 
 export const dynamic = 'force-dynamic';
 
+const CONFIG = createBlogConfig();
+
 export default async function Page() {
-  const config = createBlogConfig();
-  const result = await renderMadeaBlog(config, '/', { hasUsername: true });
-  return renderPage(result);
+  return renderMadeaBlogPage(CONFIG);
 }
