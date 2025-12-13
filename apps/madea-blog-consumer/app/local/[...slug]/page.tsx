@@ -1,4 +1,4 @@
-import { renderMadeaBlog, extractDescription } from 'madea-blog-core';
+import { renderMadeaBlog, renderPage, extractDescription } from 'madea-blog-core';
 import { createLocalConfig, createDataProvider } from '@/app/lib/madea-config';
 import { getUsername } from '@/app/shared';
 import { Metadata } from 'next';
@@ -75,35 +75,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function LocalArticlePage({ params }: PageProps) {
-  // /local routes should only work on the main domain (no subdomain)
   const username = await getUsername();
-  if (username) {
-    notFound();
-  }
+  if (username) notFound(); // /local routes only work on main domain
 
   const { file } = await parseParams(params);
+  if (!file) notFound();
 
-  if (!file) {
-    notFound();
-  }
-
-  // Create config with injected dependencies for local mode
   const config = createLocalConfig(LOCAL_CONTENT_DIR);
-
-  // Use the core controller to determine what to render
   const result = await renderMadeaBlog(config, file, { hasUsername: true });
-
-  // Render based on result type (discriminated union pattern)
-  switch (result.type) {
-    case 'article':
-      return <result.View {...result.props} />;
-    case 'file-browser':
-      return <result.View {...result.props} />;
-    case 'no-repo-found':
-      return <result.View {...result.props} />;
-    case 'landing':
-      return <result.View {...result.props} />;
-    case '404':
-      notFound();
-  }
+  return renderPage(result);
 }

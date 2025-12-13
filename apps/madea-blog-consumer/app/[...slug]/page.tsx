@@ -1,5 +1,5 @@
-import { renderMadeaBlog, extractDescription } from 'madea-blog-core';
-import { createDefaultConfig, createDataProvider, FIXED_REPO_NAME } from '@/app/lib/madea-config';
+import { renderMadeaBlog, renderPage, extractDescription } from 'madea-blog-core';
+import { createDefaultConfig, createDataProvider } from '@/app/lib/madea-config';
 import { getUsername, getGithubUser } from '@/app/shared';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -128,33 +128,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const username = await getUsername();
-
-  if (!params || !username) {
-    notFound();
-  }
+  if (!params || !username) notFound();
 
   const { file } = await parseParams(params);
-
-  // Create config with injected dependencies
   const config = createDefaultConfig(username);
-
-  // Determine path: empty file means root, otherwise article path
-  const path = file || '/';
-
-  // Use the core controller to determine what to render
-  const result = await renderMadeaBlog(config, path, { hasUsername: true });
-
-  // Render based on result type (discriminated union pattern)
-  switch (result.type) {
-    case 'article':
-      return <result.View {...result.props} />;
-    case 'file-browser':
-      return <result.View {...result.props} />;
-    case 'no-repo-found':
-      return <result.View {...result.props} />;
-    case 'landing':
-      return <result.View {...result.props} />;
-    case '404':
-      notFound();
-  }
+  const result = await renderMadeaBlog(config, file || '/', { hasUsername: true });
+  return renderPage(result);
 }
