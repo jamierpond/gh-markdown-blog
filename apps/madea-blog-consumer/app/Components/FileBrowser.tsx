@@ -3,6 +3,16 @@ import PageLayout from "./PageLayout";
 import Link from 'next/link';
 import Image from 'next/image';
 
+// Generate a fallback avatar URL using UI Avatars service
+function getAvatarUrl(authorName: string, authorAvatarUrl?: string, authorUsername?: string, fallbackUsername?: string): string {
+  if (authorAvatarUrl) return authorAvatarUrl;
+  if (authorUsername) return `https://github.com/${authorUsername}.png`;
+  if (fallbackUsername && fallbackUsername !== 'local') return `https://github.com/${fallbackUsername}.png`;
+  // Generate avatar from name initials
+  const encoded = encodeURIComponent(authorName);
+  return `https://ui-avatars.com/api/?name=${encoded}&background=6366f1&color=fff&size=64`;
+}
+
 interface FileBrowserProps {
   articles: FileInfo[];
   sourceInfo: SourceInfo;
@@ -109,7 +119,7 @@ export default function FileBrowser({ articles, sourceInfo, username }: FileBrow
                 <div className="flex items-center gap-3 mb-6">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={article.commitInfo.authorAvatarUrl || `https://github.com/${article.commitInfo.authorUsername || username}.png`}
+                    src={getAvatarUrl(article.commitInfo.authorName, article.commitInfo.authorAvatarUrl, article.commitInfo.authorUsername, username)}
                     alt={article.commitInfo.authorName}
                     width={32}
                     height={32}

@@ -26,7 +26,7 @@ export default async function LocalPage() {
       ...sourceInfo,
       name: 'Local Filesystem Demo',
       bio: 'This example uses the LocalFsDataProvider with simple-git to read markdown from the local filesystem.',
-      avatarUrl: undefined,
+      avatarUrl: 'https://ui-avatars.com/api/?name=Local+FS&background=8b5cf6&color=fff&size=256&bold=true',
       sourceUrl: '/local',
     };
 
