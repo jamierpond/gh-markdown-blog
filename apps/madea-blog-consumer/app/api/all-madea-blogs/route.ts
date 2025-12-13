@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { GITHUB_TOKEN } from '@/app/shared';
 
 interface GitHubRepo {
   name: string;
@@ -19,6 +18,15 @@ interface GitHubSearchResponse {
 }
 
 export async function GET() {
+  const token = process.env.GITHUB_TOKEN;
+
+  if (!token) {
+    return NextResponse.json(
+      { error: 'GitHub token not configured' },
+      { status: 500 }
+    );
+  }
+
   try {
     // Search for all repositories with the exact name "madea.blog"
     const searchQuery = 'madea.blog in:name';
@@ -27,9 +35,9 @@ export async function GET() {
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/vnd.github.v3+json',
-        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Authorization': `Bearer ${token}`,
       },
-      next: { revalidate: 60 }, // Cache for 60 seconds
+      next: { revalidate: 60 },
     });
 
     if (!response.ok) {

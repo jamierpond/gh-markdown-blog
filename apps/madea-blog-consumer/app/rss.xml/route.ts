@@ -1,9 +1,6 @@
-import { getUsername, getRepoPath, getFromGithub, getDefaultBranch, getFileContent, getLastUpdated, extractTitle } from '@/app/shared';
-
-interface FileItem {
-  path: string;
-  type: string;
-}
+import { getUsername } from '@/app/shared';
+import { extractDescription } from 'madea-blog-core';
+import { getDataProvider } from '@/app/lib/data-provider-factory';
 
 export async function GET() {
   const username = await getUsername();
@@ -13,71 +10,45 @@ export async function GET() {
   }
 
   try {
-    const repo = await getRepoPath(username);
-    const branch = await getDefaultBranch(username);
-    const files = await getFromGithub(
-      `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`
-    );
+    const provider = getDataProvider(username);
+    const [articles, sourceInfo] = await Promise.all([
+      provider.getArticleList(),
+      provider.getSourceInfo(),
+    ]);
 
-    if (!files.tree) {
+    if (!articles.length) {
       return new Response('No content found', { status: 404 });
     }
 
-    // Filter markdown files
-    const markdownFiles = files.tree.filter(
-      (file: FileItem) =>
-        file.type === 'blob' &&
-        (file.path.endsWith('.md') || file.path.endsWith('.mdx'))
+    // Fetch full content for each article for better descriptions
+    const articlesWithContent = await Promise.all(
+      articles.map(async (article) => {
+        try {
+          const fullArticle = await provider.getArticle(article.path);
+          if (!fullArticle) return null;
+
+          const description = extractDescription(fullArticle.content).replace(/[<>&'"]/g, '');
+          return {
+            path: fullArticle.path,
+            title: fullArticle.title,
+            lastUpdated: fullArticle.commitInfo.date,
+            description,
+          };
+        } catch {
+          return null;
+        }
+      })
     );
 
-    // Fetch title and last updated for each file
-    const articlesPromises = markdownFiles.map(async (file: FileItem) => {
-      try {
-        const content = await getFileContent(file.path, username);
-        const title = extractTitle(content, file.path);
-        const lastUpdated = await getLastUpdated(username, file.path);
-
-        // Extract description (first 200 chars after title)
-        const contentWithoutTitle = content.replace(/^#[^\n]*\n/, '');
-        const firstParagraph = contentWithoutTitle.split('\n\n').find(p => p.trim() && !p.startsWith('#')) || '';
-        const description = firstParagraph.slice(0, 200).replace(/[<>&'"]/g, '');
-
-        return {
-          path: file.path,
-          title,
-          lastUpdated,
-          description,
-        };
-      } catch {
-        return null;
-      }
-    });
-
-    const articles = (await Promise.all(articlesPromises)).filter(Boolean);
+    const validArticles = articlesWithContent.filter(Boolean);
 
     // Sort by newest first
-    articles.sort((a, b) => {
+    validArticles.sort((a, b) => {
       if (!a || !b) return 0;
       return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
     });
 
-    // Fetch user data for author info
-    let authorName = username;
-    try {
-      const response = await fetch(`https://api.github.com/users/${username}`, {
-        headers: {
-          Accept: 'application/vnd.github.v3+json',
-        },
-        next: { revalidate: 3600 },
-      });
-      if (response.ok) {
-        const userData = await response.json();
-        authorName = userData.name || username;
-      }
-    } catch {
-      // Use fallback
-    }
-
+    const authorName = sourceInfo.name;
     const baseUrl = `https://${username}.madea.blog`;
     const buildDate = new Date().toUTCString();
 
@@ -92,7 +63,7 @@ export async function GET() {
     <lastBuildDate>${buildDate}</lastBuildDate>
     <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml"/>
     <generator>madea.blog</generator>
-    ${articles.map(article => {
+    ${validArticles.map(article => {
       if (!article) return '';
       const url = `${baseUrl}/${article.path}`;
       const pubDate = new Date(article.lastUpdated).toUTCString();

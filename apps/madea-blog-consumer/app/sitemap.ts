@@ -1,11 +1,7 @@
 import { MetadataRoute } from 'next';
-import { getUsername, getRepoPath, getFromGithub, getDefaultBranch, getLastUpdated } from '@/app/shared';
+import { getUsername } from '@/app/shared';
+import { getDataProvider } from '@/app/lib/data-provider-factory';
 import { headers } from 'next/headers';
-
-interface FileItem {
-  path: string;
-  type: string;
-}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const headersList = await headers();
@@ -28,29 +24,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   try {
-    const repo = await getRepoPath(username);
-    const branch = await getDefaultBranch(username);
-    const files = await getFromGithub(
-      `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`
-    );
-
-    if (!files.tree) {
-      return [
-        {
-          url: baseUrl,
-          lastModified: new Date(),
-          changeFrequency: 'daily',
-          priority: 1,
-        },
-      ];
-    }
-
-    // Filter markdown files
-    const markdownFiles = files.tree.filter(
-      (file: FileItem) =>
-        file.type === 'blob' &&
-        (file.path.endsWith('.md') || file.path.endsWith('.mdx'))
-    );
+    const provider = getDataProvider(username);
+    const articles = await provider.getArticleList();
 
     // Create sitemap entries
     const sitemapEntries: MetadataRoute.Sitemap = [
@@ -62,29 +37,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     ];
 
-    // Fetch last updated dates for all blog posts in parallel
-    const filesWithDates = await Promise.all(
-      markdownFiles.map(async (file: FileItem) => {
-        try {
-          const lastUpdated = await getLastUpdated(username, file.path);
-          return {
-            path: file.path,
-            lastModified: new Date(lastUpdated),
-          };
-        } catch {
-          return {
-            path: file.path,
-            lastModified: new Date(),
-          };
-        }
-      })
-    );
-
     // Add each blog post with accurate last modified date
-    filesWithDates.forEach((file) => {
+    articles.forEach((article) => {
       sitemapEntries.push({
-        url: `${baseUrl}/${file.path}`,
-        lastModified: file.lastModified,
+        url: `${baseUrl}/${article.path}`,
+        lastModified: new Date(article.commitInfo.date),
         changeFrequency: 'weekly',
         priority: 0.8,
       });

@@ -141,10 +141,9 @@ export default async function Page({ params }: PageProps) {
     // Homepage - show article list
     try {
       const provider = getDataProvider(username);
-      const [articles, sourceInfo, branch] = await Promise.all([
+      const [articles, sourceInfo] = await Promise.all([
         provider.getArticleList(),
         provider.getSourceInfo(),
-        provider.getDefaultBranch(),
       ]);
 
       return <FileBrowser articles={articles} sourceInfo={sourceInfo} username={username} />;
