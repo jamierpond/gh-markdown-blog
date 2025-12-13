@@ -1,13 +1,14 @@
 import { MarkdownView } from "@/app/Components/MarkdownView";
-import { getFileContent, getLastUpdated, getUsername, extractTitle, getGithubUser, extractDescription, getLastCommitInfo } from "@/app/shared";
-import FileBrowser from "@/app/Components/FileBrowser";
+import { getUsername, getGithubUser } from "@/app/shared";
+import { extractTitle, extractDescription } from 'madea-blog-core';
+import FileBrowser, { NoRepoFound } from "@/app/Components/FileBrowser";
+import { getDataProvider } from "@/app/lib/data-provider-factory";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
 interface Params {
-  // tied to name of the folder in the file system
   slug: string[];
 }
 
@@ -18,7 +19,6 @@ interface PageProps {
 async function parseParams(params: Promise<Params>) {
   const p = await params;
   const slug = p.slug as string[];
-  // Now slug only represents the file path (no repo info)
   const file = slug.join("/");
   return { file };
 }
@@ -44,10 +44,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   try {
-    const content = await getFileContent(file, username);
-    const title = extractTitle(content, file);
-    const lastUpdated = await getLastUpdated(username, file);
+    const provider = getDataProvider(username);
+    const article = await provider.getArticle(file);
 
+    if (!article) {
+      return {
+        title: "Page Not Found",
+        description: "The page you're looking for doesn't exist.",
+      };
+    }
+
+    const { content, commitInfo, title } = article;
     const description = extractDescription(content);
 
     // Calculate reading time
@@ -67,9 +74,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     // Create dynamic OG image URL
-    const ogImageUrl = `${baseUrl}/og/article?title=${encodeURIComponent(title)}&author=${encodeURIComponent(authorName)}&username=${encodeURIComponent(username)}&date=${encodeURIComponent(lastUpdated)}`;
+    const ogImageUrl = `${baseUrl}/og/article?title=${encodeURIComponent(title)}&author=${encodeURIComponent(authorName)}&username=${encodeURIComponent(username)}&date=${encodeURIComponent(commitInfo.date)}`;
 
-    // Create rich, descriptive title with context (aim for 50-60 chars)
+    // Create rich, descriptive title with context
     const pageTitle = `${title} | ${authorName}'s Blog`;
 
     return {
@@ -86,8 +93,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         title: pageTitle,
         description: description,
         siteName: `${authorName}'s Blog`,
-        publishedTime: lastUpdated,
-        modifiedTime: lastUpdated,
+        publishedTime: commitInfo.date,
+        modifiedTime: commitInfo.date,
         authors: [authorName],
         images: [
           {
@@ -107,14 +114,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         site: '@madeablog',
       },
       other: {
-        'article:published_time': lastUpdated,
-        'article:modified_time': lastUpdated,
+        'article:published_time': commitInfo.date,
+        'article:modified_time': commitInfo.date,
         'article:author': authorName,
         'reading_time': `${readingTime} min read`,
       },
     };
   } catch {
-    // If file doesn't exist, return basic metadata
     return {
       title: "Page Not Found",
       description: "The page you're looking for doesn't exist.",
@@ -132,14 +138,34 @@ export default async function Page({ params }: PageProps) {
   const { file } = await parseParams(params);
 
   if (!file) {
-    return <FileBrowser username={username} />;
+    // Homepage - show article list
+    try {
+      const provider = getDataProvider(username);
+      const [articles, sourceInfo, branch] = await Promise.all([
+        provider.getArticleList(),
+        provider.getSourceInfo(),
+        provider.getDefaultBranch(),
+      ]);
+
+      return <FileBrowser articles={articles} sourceInfo={sourceInfo} username={username} />;
+    } catch {
+      return <NoRepoFound username={username} />;
+    }
   }
 
+  // Article page
   try {
-    const content = await getFileContent(file, username);
-    const commitInfo = await getLastCommitInfo(username, file);
-    const title = extractTitle(content, file);
-    return <MarkdownView content={content} path={file} commitInfo={commitInfo} title={title} username={username} />;
+    const provider = getDataProvider(username);
+    const [article, branch] = await Promise.all([
+      provider.getArticle(file),
+      provider.getDefaultBranch(),
+    ]);
+
+    if (!article) {
+      notFound();
+    }
+
+    return <MarkdownView article={article} username={username} branch={branch} />;
   } catch {
     notFound();
   }
