@@ -93,14 +93,6 @@ function defaultNotFound(): never {
  * @param result - The result from renderMadeaBlog
  * @param notFound - Optional custom notFound handler (defaults to throwing NotFoundError)
  * @returns The rendered view element
- *
- * @example
- * ```tsx
- * export default async function Page() {
- *   const result = await renderMadeaBlog(config, path);
- *   return renderPage(result);
- * }
- * ```
  */
 export function renderPage(
   result: RenderedView,
@@ -118,6 +110,40 @@ export function renderPage(
     case '404':
       notFound();
   }
+}
+
+/** Params shape for Next.js dynamic routes */
+type SlugParams = { slug?: string[] } | Promise<{ slug?: string[] }>;
+
+/**
+ * All-in-one page renderer for Next.js dynamic routes.
+ * Handles params resolution, path building, data fetching, and rendering.
+ *
+ * @param config - The blog configuration
+ * @param params - Next.js params (sync or async)
+ * @param options - Additional options
+ * @returns The rendered page element
+ *
+ * @example
+ * ```tsx
+ * const CONFIG = createBlogConfig();
+ *
+ * export default async function Page({ params }: PageProps) {
+ *   return renderMadeaBlogPage(CONFIG, params);
+ * }
+ * ```
+ */
+export async function renderMadeaBlogPage(
+  config: Config,
+  params?: SlugParams,
+  options: { hasUsername?: boolean } = {}
+): Promise<ReturnType<MadeaView<unknown>>> {
+  const resolvedParams = params ? await params : { slug: undefined };
+  const path = resolvedParams.slug?.join('/') || '/';
+  const result = await renderMadeaBlog(config, path, {
+    hasUsername: options.hasUsername ?? true,
+  });
+  return renderPage(result);
 }
 
 /**
