@@ -1,6 +1,6 @@
 import { getUsername } from '@/app/shared';
 import { extractDescription } from 'madea-blog-core';
-import { getDataProvider } from '@/app/lib/data-provider-factory';
+import { createDataProvider } from '@/app/lib/madea-config';
 
 export async function GET() {
   const username = await getUsername();
@@ -10,7 +10,7 @@ export async function GET() {
   }
 
   try {
-    const provider = getDataProvider(username);
+    const provider = createDataProvider({ username });
     const [articles, sourceInfo] = await Promise.all([
       provider.getArticleList(),
       provider.getSourceInfo(),

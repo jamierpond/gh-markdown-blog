@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getUsername } from '@/app/shared';
-import { getDataProvider } from '@/app/lib/data-provider-factory';
+import { createDataProvider } from '@/app/lib/madea-config';
 import { headers } from 'next/headers';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -24,7 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   try {
-    const provider = getDataProvider(username);
+    const provider = createDataProvider({ username });
     const articles = await provider.getArticleList();
 
     // Create sitemap entries

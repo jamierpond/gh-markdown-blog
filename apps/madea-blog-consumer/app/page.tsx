@@ -15,12 +15,17 @@ export default async function Page() {
   // Use the core controller to determine what to render
   const result = await renderMadeaBlog(config, '/', { hasUsername });
 
-  // Handle 404 case (shouldn't happen for root path, but handle it)
-  if (result.type === '404') {
-    return <div>Page not found</div>;
+  // Render based on result type (discriminated union pattern)
+  switch (result.type) {
+    case 'article':
+      return <result.View {...result.props} />;
+    case 'file-browser':
+      return <result.View {...result.props} />;
+    case 'no-repo-found':
+      return <result.View {...result.props} />;
+    case 'landing':
+      return <result.View {...result.props} />;
+    case '404':
+      return <div>Page not found</div>;
   }
-
-  // Render the injected view with its props
-  const { View, props } = result;
-  return <View {...props} />;
 }

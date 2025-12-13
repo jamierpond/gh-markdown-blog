@@ -77,12 +77,17 @@ export default async function LocalArticlePage({ params }: PageProps) {
   // Use the core controller to determine what to render
   const result = await renderMadeaBlog(config, file, { hasUsername: true });
 
-  // Handle 404 case
-  if (result.type === '404') {
-    notFound();
+  // Render based on result type (discriminated union pattern)
+  switch (result.type) {
+    case 'article':
+      return <result.View {...result.props} />;
+    case 'file-browser':
+      return <result.View {...result.props} />;
+    case 'no-repo-found':
+      return <result.View {...result.props} />;
+    case 'landing':
+      return <result.View {...result.props} />;
+    case '404':
+      notFound();
   }
-
-  // Render the injected view with its props
-  const { View, props } = result;
-  return <View {...props} />;
 }
