@@ -9,15 +9,15 @@ export type {
   FileBrowserViewProps,
   NoRepoFoundViewProps,
   LandingViewProps,
-} from './data-provider.js';
+} from './data-provider';
 
 // Config & Controller
-export type { Config, MadeaView, RenderedView } from './config.js';
-export { renderMadeaBlog } from './config.js';
+export type { Config, MadeaView, RenderedView } from './config';
+export { renderMadeaBlog } from './config';
 
 // Utilities
 export {
   extractTitle,
   extractDescription,
   isMarkdownFile,
-} from './utils.js';
+} from './utils';
