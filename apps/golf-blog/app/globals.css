@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a1f0a;
+  --foreground: #f0f7f0;
+  --green-fairway: #228b22;
+  --green-dark: #006400;
+  --sand: #c2b280;
+  --white: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Golf-themed prose styles */
+.prose {
+  line-height: 1.8;
+  color: #e5e7eb;
+}
+
+.prose-invert {
+  color: #e5e7eb;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: #86efac;
+}
+
+.prose h1 { font-size: 2.5rem; }
+.prose h2 { font-size: 2rem; }
+.prose h3 { font-size: 1.5rem; }
+
+.prose p {
+  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+}
+
+.prose a {
+  color: #4ade80;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: all 0.2s;
+}
+
+.prose a:hover {
+  color: #86efac;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.prose li {
+  margin-bottom: 0.75rem;
+}
+
+.prose ul { list-style-type: disc; }
+.prose ol { list-style-type: decimal; }
+
+.prose li::marker {
+  color: #4ade80;
+}
+
+.prose code {
+  background: #166534;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+  font-family: var(--font-mono), monospace;
+  color: white;
+}
+
+.prose pre {
+  background: #052e16;
+  color: #bbf7d0;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #166534;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.prose blockquote {
+  border-left: 4px solid #4ade80;
+  padding-left: 1.5rem;
+  font-style: italic;
+  color: #86efac;
+  margin-bottom: 1.5rem;
+  background: rgba(74, 222, 128, 0.1);
+  padding: 1rem 1.5rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.prose img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 2rem 0;
+  border: 2px solid #166534;
+}
+
+.prose hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #4ade80, transparent);
+  margin: 3rem 0;
+}
+
+.prose strong {
+  color: #86efac;
+  font-weight: 700;
+}
+
+.prose em {
+  color: #a7f3d0;
+}
