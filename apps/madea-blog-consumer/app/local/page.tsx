@@ -2,6 +2,8 @@ import FileBrowser from '@/app/Components/FileBrowser';
 import PageLayout from '@/app/Components/PageLayout';
 import { generateAvatarDataUrl } from '@/app/Components/Avatar';
 import { createDataProvider } from '@/app/lib/madea-config';
+import { getUsername } from '@/app/shared';
+import { notFound } from 'next/navigation';
 import path from 'path';
 
 export const dynamic = 'force-dynamic';
@@ -10,6 +12,12 @@ export const dynamic = 'force-dynamic';
 const LOCAL_CONTENT_DIR = path.join(process.cwd(), 'test');
 
 export default async function LocalPage() {
+  // /local routes should only work on the main domain (no subdomain)
+  const username = await getUsername();
+  if (username) {
+    notFound();
+  }
+
   // Use the DI pattern to create the data provider
   const provider = createDataProvider({
     username: 'local',
