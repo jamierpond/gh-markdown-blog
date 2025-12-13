@@ -105,7 +105,8 @@ export default async function Page() {
     ]);
 
     return <FileBrowser articles={articles} sourceInfo={sourceInfo} username={username} />;
-  } catch {
+  } catch (error) {
+    console.error(`[page.tsx] Error fetching blog for ${username}:`, error);
     return <NoRepoFound username={username} />;
   }
 }
