@@ -71,27 +71,40 @@ export type RenderedView =
       type: '404';
     };
 
+/** Error thrown when a page is not found */
+export class NotFoundError extends Error {
+  constructor() {
+    super('NEXT_NOT_FOUND');
+    this.name = 'NotFoundError';
+    // This digest is what Next.js uses internally
+    (this as unknown as { digest: string }).digest = 'NEXT_NOT_FOUND';
+  }
+}
+
+/** Default notFound handler that throws a Next.js-compatible error */
+function defaultNotFound(): never {
+  throw new NotFoundError();
+}
+
 /**
  * Renders a RenderedView result to a React element.
  * Handles all view types internally so user code stays clean.
  *
  * @param result - The result from renderMadeaBlog
- * @param notFound - The notFound function from next/navigation (called on 404)
+ * @param notFound - Optional custom notFound handler (defaults to throwing NotFoundError)
  * @returns The rendered view element
  *
  * @example
  * ```tsx
- * import { notFound } from 'next/navigation';
- *
  * export default async function Page() {
  *   const result = await renderMadeaBlog(config, path);
- *   return renderPage(result, notFound);
+ *   return renderPage(result);
  * }
  * ```
  */
 export function renderPage(
   result: RenderedView,
-  notFound: () => never
+  notFound: () => never = defaultNotFound
 ): ReturnType<MadeaView<unknown>> {
   switch (result.type) {
     case 'article':
