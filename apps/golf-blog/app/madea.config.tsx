@@ -1,4 +1,5 @@
-import type { Config, ArticleViewProps, FileBrowserViewProps, NoRepoFoundViewProps, FileInfo } from 'madea-blog-core';
+import type { MadeaConfigWithSeo, ArticleViewProps, FileBrowserViewProps, NoRepoFoundViewProps, FileInfo } from 'madea-blog-core';
+import { generateMetadataForIndex, generateMetadataForArticle } from 'madea-blog-core';
 import { GitHubDataProvider } from 'madea-blog-core/providers/github';
 import Link from 'next/link';
 import Markdown from 'react-markdown';
@@ -43,7 +44,17 @@ function LandingView() {
   return <h1>Welcome</h1>;
 }
 
-export function createBlogConfig(): Config {
+const BASE_URL = 'https://golf-blog.example.com';
+
+const SEO_CONFIG = {
+  baseUrl: BASE_URL,
+  siteName: `Jamie's minimal blog`,
+  defaultDescription: 'A minimal blog',
+  authorName: 'jamierpond',
+  authorUrl: 'https://github.com/jamierpond',
+} as const;
+
+export function createBlogConfig(): MadeaConfigWithSeo {
   const token = process.env.GITHUB_TOKEN || process.env.GITHUB_PAT;
   if (!token) throw new Error('GITHUB_TOKEN or GITHUB_PAT required');
 
@@ -54,5 +65,21 @@ export function createBlogConfig(): Config {
     articleView: ArticleView,
     noRepoFoundView: NoRepoFoundView,
     landingView: LandingView,
+    seo: SEO_CONFIG,
+    basePath: '',
   };
+}
+
+// Metadata helpers for pages
+export async function generateBlogMetadata() {
+  const config = createBlogConfig();
+  return generateMetadataForIndex(config, {
+    title: 'Golf Blog',
+    description: 'A minimal golf blog',
+  });
+}
+
+export async function generateArticleMetadata(slug: string[]) {
+  const config = createBlogConfig();
+  return generateMetadataForArticle(config, slug);
 }

@@ -1,7 +1,9 @@
 import { renderMadeaBlogPage } from 'madea-blog-core';
-import { createBlogConfig } from './lib/madea-config';
+import { createBlogConfig, generateBlogMetadata } from './lib/madea-config';
 
 export const dynamic = 'force-dynamic';
+
+export const generateMetadata = generateBlogMetadata;
 
 const CONFIG = createBlogConfig();
 
