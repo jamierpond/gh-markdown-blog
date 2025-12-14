@@ -8,6 +8,7 @@ interface GitHubOptions {
   username: string;
   repo: string;
   token?: string;
+  subDir?: string;
 }
 
 interface GitHubTreeItem {
@@ -59,6 +60,7 @@ export class GitHubDataProvider implements DataProvider {
   private readonly repo: string;
   private readonly token?: string;
   private readonly repoPath: string;
+  private readonly subDir?: string;
   private cachedBranch?: string;
   private cachedUser: GitHubUser | null | undefined;
 
@@ -67,6 +69,7 @@ export class GitHubDataProvider implements DataProvider {
     this.repo = options.repo;
     this.token = options.token;
     this.repoPath = `${options.username}/${options.repo}`;
+    this.subDir = options.subDir?.replace(/^\/|\/$/g, ''); // normalize: remove leading/trailing slashes
   }
 
   private async fetchFromGitHub<T>(url: string, cacheSeconds: number = TEN_MINUTES_SECONDS): Promise<T> {
@@ -167,12 +170,26 @@ export class GitHubDataProvider implements DataProvider {
     const treeUrl = `https://api.github.com/repos/${this.repoPath}/git/trees/${branch}?recursive=1`;
     const data = await this.fetchFromGitHub<{ tree: GitHubTreeItem[] }>(treeUrl, TEN_MINUTES_SECONDS);
 
-    const markdownFiles = data.tree.filter(
-      (item: GitHubTreeItem) => item.type === 'blob' && isMarkdownFile(item.path)
-    );
+    const subDirPrefix = this.subDir ? `${this.subDir}/` : '';
+
+    const markdownFiles = data.tree.filter((item: GitHubTreeItem) => {
+      if (item.type !== 'blob' || !isMarkdownFile(item.path)) {
+        return false;
+      }
+      // If subDir is set, only include files within that directory
+      if (this.subDir && !item.path.startsWith(subDirPrefix)) {
+        return false;
+      }
+      return true;
+    });
 
     const articles: FileInfo[] = await Promise.all(
       markdownFiles.map(async (file: GitHubTreeItem) => {
+        // Strip subDir prefix from path for routing
+        const routePath = this.subDir
+          ? file.path.slice(subDirPrefix.length)
+          : file.path;
+
         try {
           const [content, commitInfo] = await Promise.all([
             this.getFileContent(file.path),
@@ -180,7 +197,7 @@ export class GitHubDataProvider implements DataProvider {
           ]);
 
           return {
-            path: file.path,
+            path: routePath,
             content: content.substring(0, 500) + (content.length > 500 ? '...' : ''),
             sha: file.sha,
             url: `https://github.com/${this.repoPath}/blob/${branch}/${file.path}`,
@@ -204,7 +221,7 @@ export class GitHubDataProvider implements DataProvider {
             .pop() || file.path;
 
           return {
-            path: file.path,
+            path: routePath,
             content: '',
             sha: file.sha,
             url: `https://github.com/${this.repoPath}/blob/${branch}/${file.path}`,
@@ -226,22 +243,25 @@ export class GitHubDataProvider implements DataProvider {
   async getArticle(articlePath: string): Promise<FileInfo | null> {
     try {
       const branch = await this.getDefaultBranch();
+      // Prepend subDir to get the full path in the repo
+      const fullPath = this.subDir ? `${this.subDir}/${articlePath}` : articlePath;
+
       const [content, commitInfo] = await Promise.all([
-        this.getFileContent(articlePath),
-        this.getCommitInfo(articlePath),
+        this.getFileContent(fullPath),
+        this.getCommitInfo(fullPath),
       ]);
 
       // Get the file SHA
-      const url = `https://api.github.com/repos/${this.repoPath}/contents/${articlePath}?ref=${branch}`;
+      const url = `https://api.github.com/repos/${this.repoPath}/contents/${fullPath}?ref=${branch}`;
       const fileData = await this.fetchFromGitHub<GitHubFileContent>(url, TEN_MINUTES_SECONDS);
 
       return {
-        path: articlePath,
+        path: articlePath, // Return the route path (without subDir)
         content,
         sha: fileData.sha,
-        url: `https://github.com/${this.repoPath}/blob/${branch}/${articlePath}`,
+        url: `https://github.com/${this.repoPath}/blob/${branch}/${fullPath}`,
         commitInfo,
-        title: extractTitle(content, articlePath),
+        title: extractTitle(content, fullPath),
       };
     } catch {
       return null;
@@ -249,13 +269,19 @@ export class GitHubDataProvider implements DataProvider {
   }
 
   async getSourceInfo(): Promise<SourceInfo> {
-    const user = await this.fetchGitHubUser(this.username);
+    const [user, branch] = await Promise.all([
+      this.fetchGitHubUser(this.username),
+      this.getDefaultBranch(),
+    ]);
+    const sourceUrl = this.subDir
+      ? `https://github.com/${this.repoPath}/tree/${branch}/${this.subDir}`
+      : `https://github.com/${this.repoPath}`;
 
     return {
       name: user?.name || this.username,
       bio: user?.bio || undefined,
       avatarUrl: user?.avatar_url || `https://github.com/${this.username}.png`,
-      sourceUrl: `https://github.com/${this.repoPath}`,
+      sourceUrl,
     };
   }
 }
