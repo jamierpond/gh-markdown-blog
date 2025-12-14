@@ -22,3 +22,19 @@ export {
   stripTitle,
   isMarkdownFile,
 } from './utils';
+
+// SEO
+export type {
+  SitemapEntry,
+  BlogSitemapOptions,
+  BlogJsonLd,
+  BlogPostingJsonLd,
+  PersonJsonLd,
+  BlogJsonLdOptions,
+  ArticleJsonLdOptions,
+} from './seo';
+export {
+  generateBlogSitemap,
+  generateBlogJsonLd,
+  generateArticleJsonLd,
+} from './seo';
