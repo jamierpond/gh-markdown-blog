@@ -9,11 +9,11 @@ export type {
   FileBrowserViewProps,
   NoRepoFoundViewProps,
   LandingViewProps,
-} from './data-provider';
+} from './data-provider.js';
 
 // Config & Controller
-export type { Config, MadeaView, RenderedView } from './config';
-export { renderMadeaBlog, renderPage, renderMadeaBlogPage } from './config';
+export type { Config, MadeaView, RenderedView } from './config.js';
+export { renderMadeaBlog, renderPage, renderMadeaBlogPage } from './config.js';
 
 // Utilities
 export {
@@ -21,7 +21,7 @@ export {
   extractDescription,
   stripTitle,
   isMarkdownFile,
-} from './utils';
+} from './utils.js';
 
 // SEO
 export type {
@@ -32,9 +32,9 @@ export type {
   PersonJsonLd,
   BlogJsonLdOptions,
   ArticleJsonLdOptions,
-} from './seo';
+} from './seo.js';
 export {
   generateBlogSitemap,
   generateBlogJsonLd,
   generateArticleJsonLd,
-} from './seo';
+} from './seo.js';
