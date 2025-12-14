@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation';
 import type {
   DataProvider,
   ArticleViewProps,
@@ -71,19 +72,9 @@ export type RenderedView =
       type: '404';
     };
 
-/** Error thrown when a page is not found */
-export class NotFoundError extends Error {
-  constructor() {
-    super('NEXT_NOT_FOUND');
-    this.name = 'NotFoundError';
-    // This digest is what Next.js uses internally
-    (this as unknown as { digest: string }).digest = 'NEXT_NOT_FOUND';
-  }
-}
-
-/** Default notFound handler that throws a Next.js-compatible error */
+/** Default notFound handler that uses Next.js notFound() */
 function defaultNotFound(): never {
-  throw new NotFoundError();
+  notFound();
 }
 
 /**
