@@ -1,4 +1,4 @@
-import { AlertIcon } from "@/app/icons/svg";
+import { AlertIcon } from "./icons/svg";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { cache } from 'react';

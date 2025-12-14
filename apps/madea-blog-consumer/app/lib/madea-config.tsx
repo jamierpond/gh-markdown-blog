@@ -10,9 +10,9 @@ import { GitHubDataProvider } from 'madea-blog-core/providers/github';
 import { LocalFsDataProvider } from 'madea-blog-core/providers/local-fs';
 
 // Import the actual view components
-import FileBrowser, { NoRepoFound } from '@/app/components/file-browser';
-import { MarkdownView } from '@/app/components/markdown-view';
-import LandingPage from '@/app/components/landing-page';
+import FileBrowser, { NoRepoFound } from '../components/file-browser';
+import { MarkdownView } from '../components/markdown-view';
+import LandingPage from '../components/landing-page';
 
 export const FIXED_REPO_NAME = 'madea.blog';
 
