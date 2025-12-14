@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter madea-blog-consumer dev",
-    "build": "pnpm -r build",
+    "build": "pnpm --filter madea-blog-core build",
     "build:core": "pnpm --filter madea-blog-core build",
     "build:app": "pnpm --filter madea-blog-consumer build",
     "lint": "pnpm -r lint",

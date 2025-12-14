@@ -1,6 +1,6 @@
 import { renderMadeaBlog, renderPage, extractDescription } from 'madea-blog-core';
-import { createLocalConfig, createDataProvider } from '@/app/lib/madea-config';
-import { getUsername } from '@/app/shared';
+import { createLocalConfig, createDataProvider } from '../../lib/madea-config';
+import { getUsername } from '../../shared';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import path from 'path';

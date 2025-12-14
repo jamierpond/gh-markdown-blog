@@ -1,6 +1,6 @@
 import { renderMadeaBlog, renderPage, extractDescription } from 'madea-blog-core';
-import { createDefaultConfig, createDataProvider } from '@/app/lib/madea-config';
-import { getUsername, getGithubUser } from '@/app/shared';
+import { createDefaultConfig, createDataProvider } from '../lib/madea-config';
+import { getUsername, getGithubUser } from '../shared';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 

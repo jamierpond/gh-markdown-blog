@@ -1,6 +1,6 @@
-import { getUsername } from '@/app/shared';
+import { getUsername } from '../shared';
 import { extractDescription } from 'madea-blog-core';
-import { createDataProvider } from '@/app/lib/madea-config';
+import { createDataProvider } from '../lib/madea-config';
 
 export async function GET() {
   const username = await getUsername();

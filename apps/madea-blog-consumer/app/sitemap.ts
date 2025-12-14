@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
-import { getUsername } from '@/app/shared';
-import { createDataProvider } from '@/app/lib/madea-config';
+import { getUsername } from './shared';
+import { createDataProvider } from './lib/madea-config';
 import { headers } from 'next/headers';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

@@ -5,7 +5,7 @@ import remarkGfm from "remark-gfm";
 import PageLayout from "./page-layout";
 import type { FileInfo } from 'madea-blog-core';
 import { extractDescription } from 'madea-blog-core';
-import { getGithubUser } from "@/app/shared";
+import { getGithubUser } from "../shared";
 import { Avatar } from './avatar';
 
 // Check if a string is a valid GitHub username (no spaces, reasonable format)
