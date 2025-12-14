@@ -73,15 +73,16 @@ export class GitHubDataProvider implements DataProvider {
   }
 
   private async fetchFromGitHub<T>(url: string, cacheSeconds: number = TEN_MINUTES_SECONDS): Promise<T> {
-    if (!this.token) {
-      throw new Error('GitHub token is required for GitHubDataProvider');
+    const headers: Record<string, string> = {
+      Accept: 'application/vnd.github.v3+json',
+    };
+
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
     }
 
     const options: NextFetchRequestInit = {
-      headers: {
-        Accept: 'application/vnd.github.v3+json',
-        Authorization: `Bearer ${this.token}`,
-      },
+      headers,
       cache: 'force-cache',
       next: { revalidate: cacheSeconds },
     };
