@@ -19,5 +19,6 @@ export { renderMadeaBlog, renderPage, renderMadeaBlogPage } from './config';
 export {
   extractTitle,
   extractDescription,
+  stripTitle,
   isMarkdownFile,
 } from './utils';

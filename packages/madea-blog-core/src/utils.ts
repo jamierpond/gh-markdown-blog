@@ -15,6 +15,23 @@ export function extractTitle(content: string, path: string): string {
     .pop() || path;
 }
 
+/** Strips the first H1 heading from content (to avoid duplicate titles) */
+export function stripTitle(content: string): string {
+  const lines = content.split('\n');
+  const firstLine = lines[0]?.trim();
+
+  if (firstLine && firstLine.startsWith('# ')) {
+    // Remove first line and any following blank lines
+    let i = 1;
+    while (i < lines.length && lines[i].trim() === '') {
+      i++;
+    }
+    return lines.slice(i).join('\n');
+  }
+
+  return content;
+}
+
 /** Extracts the first paragraph as a summary/description */
 export function extractDescription(content: string): string {
   const contentWithoutTitle = content.replace(/^#[^\n]*\n/, '');
