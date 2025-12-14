@@ -6,6 +6,8 @@ import type {
   NoRepoFoundViewProps,
   LandingViewProps,
 } from './data-provider.js';
+import type { SeoConfig, MadeaMetadata } from './metadata.js';
+import { generateIndexMetadata, generateArticleMetadataFromSlug } from './metadata.js';
 
 /**
  * A generic type for view components being injected.
@@ -40,6 +42,12 @@ export interface Config {
 
   /** Component to render the landing page (no subdomain) */
   landingView: MadeaView<LandingViewProps>;
+
+  /** SEO configuration for metadata generation */
+  seo?: SeoConfig;
+
+  /** Base path for this content (e.g., '/blog' or '/docs') */
+  basePath?: string;
 }
 
 /**
@@ -223,4 +231,46 @@ export async function renderMadeaBlog(
   } catch {
     return { type: '404' };
   }
+}
+
+/**
+ * Config with required SEO fields for metadata generation
+ */
+export type MadeaConfigWithSeo = Config & {
+  seo: SeoConfig;
+  basePath: string;
+};
+
+export interface IndexMetadataParams {
+  title: string;
+  description: string;
+}
+
+/**
+ * Generate metadata for an index/listing page using config.
+ */
+export function generateMetadataForIndex(
+  config: MadeaConfigWithSeo,
+  params: IndexMetadataParams
+): MadeaMetadata {
+  return generateIndexMetadata({
+    seo: config.seo,
+    path: config.basePath,
+    title: params.title,
+    description: params.description,
+  });
+}
+
+/**
+ * Generate metadata for an article page using config.
+ * Fetches the article and returns metadata, or null if not found.
+ */
+export async function generateMetadataForArticle(
+  config: MadeaConfigWithSeo,
+  slug: string[]
+): Promise<MadeaMetadata | null> {
+  return generateArticleMetadataFromSlug(config.dataProvider, slug, {
+    seo: config.seo,
+    path: config.basePath,
+  });
 }

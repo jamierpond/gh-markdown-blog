@@ -12,8 +12,8 @@ export type {
 } from './data-provider.js';
 
 // Config & Controller
-export type { Config, MadeaView, RenderedView } from './config.js';
-export { renderMadeaBlog, renderPage, renderMadeaBlogPage } from './config.js';
+export type { Config, MadeaView, RenderedView, MadeaConfigWithSeo, IndexMetadataParams } from './config.js';
+export { renderMadeaBlog, renderPage, renderMadeaBlogPage, generateMetadataForIndex, generateMetadataForArticle } from './config.js';
 
 // Utilities
 export {
@@ -38,3 +38,16 @@ export {
   generateBlogJsonLd,
   generateArticleJsonLd,
 } from './seo.js';
+
+// Metadata (Next.js compatible)
+export type {
+  SeoConfig,
+  MadeaMetadata,
+  IndexMetadataOptions,
+  ArticleMetadataOptions,
+} from './metadata.js';
+export {
+  generateIndexMetadata,
+  generateArticleMetadata,
+  generateArticleMetadataFromSlug,
+} from './metadata.js';
