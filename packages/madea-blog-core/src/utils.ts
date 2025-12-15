@@ -1,10 +1,12 @@
-/** Extracts the H1 title or falls back to a formatted filename */
+/** Extracts the title from the first heading or falls back to a formatted filename */
 export function extractTitle(content: string, path: string): string {
   const lines = content.split('\n');
   const firstLine = lines[0]?.trim();
 
-  if (firstLine && firstLine.startsWith('# ')) {
-    return firstLine.substring(2).trim();
+  // Match any heading level (# through ######)
+  const match = firstLine?.match(/^#{1,6}\s+(.+)$/);
+  if (match) {
+    return match[1].trim();
   }
 
   // Fallback: format the filename
@@ -15,12 +17,13 @@ export function extractTitle(content: string, path: string): string {
     .pop() || path;
 }
 
-/** Strips the first H1 heading from content (to avoid duplicate titles) */
+/** Strips the first heading from content (to avoid duplicate titles) */
 export function stripTitle(content: string): string {
   const lines = content.split('\n');
   const firstLine = lines[0]?.trim();
 
-  if (firstLine && firstLine.startsWith('# ')) {
+  // Match any heading level (# through ######)
+  if (firstLine && /^#{1,6}\s/.test(firstLine)) {
     // Remove first line and any following blank lines
     let i = 1;
     while (i < lines.length && lines[i].trim() === '') {
