@@ -2,6 +2,7 @@
   "name": "madea-blog-monorepo",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "dev": "pnpm --filter madea-blog-consumer dev",
     "build": "pnpm --filter madea-blog-core build",
