@@ -141,6 +141,17 @@ export class GitHubDataProvider implements DataProvider {
     return Buffer.from(data.content, data.encoding).toString('utf-8');
   }
 
+  private async getFileContentWithMetadata(filePath: string): Promise<{ content: string; sha: string; htmlUrl: string }> {
+    const branch = await this.getDefaultBranch();
+    const url = `https://api.github.com/repos/${this.repoPath}/contents/${filePath}?ref=${branch}`;
+    const data = await this.fetchFromGitHub<GitHubFileContent>(url, TEN_MINUTES_SECONDS);
+    return {
+      content: Buffer.from(data.content, data.encoding).toString('utf-8'),
+      sha: data.sha,
+      htmlUrl: data.html_url,
+    };
+  }
+
   private async getCommitInfo(filePath: string): Promise<CommitInfo> {
     const commits = await this.fetchFromGitHub<GitHubCommit[]>(
       `https://api.github.com/repos/${this.repoPath}/commits?path=${filePath}&per_page=1`
@@ -247,22 +258,18 @@ export class GitHubDataProvider implements DataProvider {
       // Prepend subDir to get the full path in the repo
       const fullPath = this.subDir ? `${this.subDir}/${articlePath}` : articlePath;
 
-      const [content, commitInfo] = await Promise.all([
-        this.getFileContent(fullPath),
+      const [fileData, commitInfo] = await Promise.all([
+        this.getFileContentWithMetadata(fullPath),
         this.getCommitInfo(fullPath),
       ]);
 
-      // Get the file SHA
-      const url = `https://api.github.com/repos/${this.repoPath}/contents/${fullPath}?ref=${branch}`;
-      const fileData = await this.fetchFromGitHub<GitHubFileContent>(url, TEN_MINUTES_SECONDS);
-
       return {
         path: articlePath, // Return the route path (without subDir)
-        content,
+        content: fileData.content,
         sha: fileData.sha,
         url: `https://github.com/${this.repoPath}/blob/${branch}/${fullPath}`,
         commitInfo,
-        title: extractTitle(content, fullPath),
+        title: extractTitle(fileData.content, fullPath),
       };
     } catch {
       return null;
